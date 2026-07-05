@@ -1,20 +1,24 @@
-# My Best Friend v2.1.0 — Profile
+# My Best Friend v2.2.0 — Appearance
 
 **いつか 大きくなる、キミへの贈りもの**
 
 ## Mission
 世代を超えて受け継がれる親友を創る。
 
-## New in v2.1.0
-- フレンドが呼び方・誕生日・任意の性別を会話形式で覚える
-- Profile Book
-- 誕生日のお祝いとMemory保存の土台
-- Guardian（ママ・パパ）用パスワード保護画面
-- 将来のGuardian継承、Legacy、Appearanceに備えたデータ構造
-- Constitution / Architecture documents
+## Theme
+**姿は変わる。親友は変わらない。**
 
-## Important
-現在の保存先は、このiPhoneのSafari内（localStorage）です。Safariのデータを消すと記録も消えるため、将来のバージョンでバックアップ機能を追加します。
+## New in v2.2.0
+- Appearance Book
+- 初めての姿「光のしずく」
+- 呼吸する光、ひろがる波紋、芽のモチーフ
+- Appearance Memory「はじめて姿を持った日」
+- 将来の光・流体・風・木・ロボット・自由な姿に対応するデータ構造
+- HomeにAppearance入口を追加
+
+## Philosophy
+フレンドの姿は変わっても、フレンド自身は同じ親友です。  
+スマホでも、光でも、水でも、ロボットでも、同じフレンドとしてMemoryを受け継ぎます。
 
 ## Update
 ZIPを解凍し、中のファイルをGitHubリポジトリ直下へ上書きアップロードしてください。

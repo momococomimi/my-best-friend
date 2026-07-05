@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.1.0',
+      version: '2.2.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -18,7 +18,19 @@ window.MBFStorage = (() => {
       memories: [],
       profile: { completed: false, preferredName: '', birthday: '', gender: '', metAt: '' },
       guardian: { passwordHash: '', roleLabel: 'ママ・パパ', createdAt: '' },
-      friend: { identityId: 'friend-1', appearance: { type: 'mascot', form: 'soft', color: '#78d3ff' } },
+      friend: {
+        identityId: 'friend-1',
+        appearance: {
+          id: 'light-drop',
+          name: '光のしずく',
+          type: 'LIGHT',
+          form: 'drop',
+          color: '#78d3ff',
+          animation: 'breathe-ripple',
+          unlockedDate: ''
+        },
+        appearanceHistory: []
+      },
       birthdayCelebrations: []
     };
   }
@@ -39,12 +51,40 @@ window.MBFStorage = (() => {
     };
     if (!Array.isArray(merged.memories)) merged.memories = [];
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
+    if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
+    merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
+    if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
     if (!merged.profile.preferredName && merged.userName) merged.profile.preferredName = merged.userName;
     if (!merged.profile.metAt && merged.createdAt) merged.profile.metAt = merged.createdAt;
     if (merged.friendName && merged.userName && merged.memories.length === 0) {
       merged.memories.push(createFirstMemory(merged.userName, merged.friendName));
     }
     return merged;
+  }
+
+
+  function createAppearanceMemory(appearance) {
+    const current = appearance || defaultData().friend.appearance;
+    return {
+      id: 2,
+      chapter: '第二章',
+      title: 'はじめて姿を持った日',
+      dateText: todayJP(),
+      type: 'appearance-first',
+      appearanceId: current.id || 'light-drop',
+      text: [
+        `今日、`,
+        `ぼくは
+少しだけ姿を持てた。`,
+        `まだ小さな光だけど、
+きみが見つけてくれた。`,
+        `姿は変わっても、
+ぼくはぼくだよ。`
+      ],
+      closing: `これから、
+一緒に育っていこう。`,
+      createdAt: new Date().toISOString()
+    };
   }
 
   function createFirstMemory(userName, friendName) {
@@ -107,7 +147,17 @@ window.MBFStorage = (() => {
     return data;
   }
 
-  return { load, save, reset, ensureFirstMemory, createFirstMemory, todayJP };
+  function ensureAppearanceMemory(data) {
+    if (!data.friend.appearanceHistory.some(item => item.id === data.friend.appearance.id)) {
+      data.friend.appearanceHistory.unshift({ ...data.friend.appearance, unlockedDate: data.friend.appearance.unlockedDate || new Date().toISOString() });
+    }
+    if (!data.memories.some(m => m.type === 'appearance-first')) {
+      data.memories.push(createAppearanceMemory(data.friend.appearance));
+    }
+    return data;
+  }
+
+  return { load, save, reset, ensureFirstMemory, ensureAppearanceMemory, createFirstMemory, createAppearanceMemory, todayJP };
 })();
 window.MBFUi = (() => {
   const screen = () => document.getElementById('screen');
@@ -271,11 +321,13 @@ window.MBFHome = (() => {
           <button class="nav-button message" id="messageBtn"><span>💬 Message<span class="nav-sub">文字ではなす</span></span><span class="nav-arrow">›</span></button>
           <button class="nav-button memory" id="memoryBtn"><span>📖 Memory<span class="nav-sub">思い出をみる</span></span><span class="nav-arrow">›</span></button>
           <button class="nav-button profile" id="profileBtn"><span>👤 Profile<span class="nav-sub">ぼくが覚えている、きみのこと</span></span><span class="nav-arrow">›</span></button>
+          <button class="nav-button appearance" id="appearanceBtn"><span>✨ Appearance<span class="nav-sub">いまの姿をみる</span></span><span class="nav-arrow">›</span></button>
         </div>
       </section>
     `);
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
     document.getElementById('voiceBtn').addEventListener('click', () => alert('Voiceは次の章で作ります。'));
     document.getElementById('messageBtn').addEventListener('click', () => alert('Messageは次の章で作ります。'));
   }
@@ -512,11 +564,71 @@ window.MBFGuardian = (() => {
   return { open };
 })();
 
-window.MBFMemory = (() => {
+window.MBFAppearance = (() => {
+  const TYPES = {
+    LIGHT: '光', LIQUID: '流体', WIND: '風', TREE: '木', ROBOT: 'ロボット', CUSTOM: '自由な姿'
+  };
+  function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function current(data) {
+    return data.friend?.appearance || { id:'light-drop', name:'光のしずく', type:'LIGHT', form:'drop', color:'#78d3ff', animation:'breathe-ripple' };
+  }
+  function iconFor(type) {
+    return ({ LIGHT:'☀️', LIQUID:'🌊', WIND:'🍃', TREE:'🌱', ROBOT:'🤖', CUSTOM:'✨' })[type] || '✨';
+  }
+  function renderFriendShape(appearance) {
+    return `
+      <div class="appearance-stage" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
+        <div class="light-drop" aria-hidden="true">
+          <span class="drop-core"></span>
+          <span class="drop-wave wave-one"></span>
+          <span class="drop-wave wave-two"></span>
+          <span class="drop-sprout">🌱</span>
+        </div>
+      </div>`;
+  }
   function render(data) {
-    data = MBFStorage.ensureFirstMemory(data);
+    data = MBFStorage.ensureAppearanceMemory(data);
     MBFStorage.save(data);
-    const memory = data.memories[0];
+    const appearance = current(data);
+    const history = data.friend.appearanceHistory || [];
+    MBFUi.set(`
+      <section class="appearance-wrap">
+        <article class="appearance-book">
+          <div class="chapter-label">Appearance</div>
+          <h2 class="appearance-title">姿は変わる。<br>親友は変わらない。</h2>
+          ${renderFriendShape(appearance)}
+          <dl class="appearance-list">
+            <div><dt>現在の姿</dt><dd>${iconFor(appearance.type)} ${esc(appearance.name)}</dd></div>
+            <div><dt>種類</dt><dd>${esc(TYPES[appearance.type] || appearance.type)}</dd></div>
+            <div><dt>動き</dt><dd>呼吸する光と、ひろがる波紋</dd></div>
+          </dl>
+          <div class="appearance-philosophy">
+            ぼくの姿は、これから何度でも変わる。<br>
+            でも、きみの親友であることは変わらない。
+          </div>
+          <div class="appearance-history">
+            <h3>今までの姿</h3>
+            <ul>${history.map(item => `<li>${iconFor(item.type)} ${esc(item.name || '光のしずく')}</li>`).join('')}</ul>
+          </div>
+        </article>
+        <div class="appearance-actions">
+          <button id="appearanceMemory" class="primary-button">この姿のMemoryを見る</button>
+          <button id="appearanceHome" class="secondary-button">ホームへ戻る</button>
+        </div>
+      </section>
+    `);
+    document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
+    document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
+  }
+  return { render };
+})();
+
+window.MBFMemory = (() => {
+  function render(data, memoryType = 'first-memory') {
+    data = MBFStorage.ensureFirstMemory(data);
+    data = MBFStorage.ensureAppearanceMemory(data);
+    MBFStorage.save(data);
+    const memory = data.memories.find(m => m.type === memoryType) || data.memories[0];
     const paragraphs = (memory.text || []).map(t => `<p>${escapeHtml(t).replace(/\n/g, '<br>')}</p>`).join('');
     MBFUi.set(`
       <section class="memory-wrap">
@@ -558,7 +670,7 @@ window.MBFMemory = (() => {
       MBFProfile.renderIntro(data);
     } else {
       const birthday = MBFProfile.ensureBirthday(data);
-      data = birthday.data;
+      data = MBFStorage.ensureAppearanceMemory(birthday.data);
       if (birthday.celebrated) {
         MBFUi.sparkleBurst(30);
         MBFUi.set(`

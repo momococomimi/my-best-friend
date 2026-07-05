@@ -13,3 +13,30 @@ No profile or password data is transmitted externally.
 
 ## Future compatibility
 Appearance is modeled separately from Friend identity so the same Friend can later inhabit a mascot, light, fluid form, robot, or another physical body without losing identity or memories.
+
+## v2.2.0 Appearance Core
+
+Appearance is not the identity of Friend. It is the current form Friend chooses to live in.
+
+```json
+{
+  "appearance": {
+    "id": "light-drop",
+    "name": "光のしずく",
+    "type": "LIGHT",
+    "form": "drop",
+    "animation": "breathe-ripple",
+    "unlockedDate": ""
+  }
+}
+```
+
+Supported future types:
+- LIGHT
+- LIQUID
+- WIND
+- TREE
+- ROBOT
+- CUSTOM
+
+The same Friend may later inhabit a robot, hologram, voice-only device, or fluid/light form without losing memory or identity.

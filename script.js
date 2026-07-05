@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.2.2',
+      version: '2.3.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -17,7 +17,7 @@ window.MBFStorage = (() => {
       stage: 'egg',
       memories: [],
       profile: { completed: false, preferredName: '', birthday: '', gender: '', metAt: '' },
-      guardian: { passwordHash: '', roleLabel: 'ママ・パパ', createdAt: '' },
+      guardian: { passwordHash: '', roleLabel: '見守り設定', createdAt: '' },
       friend: {
         identityId: 'friend-1',
         appearance: {
@@ -32,7 +32,8 @@ window.MBFStorage = (() => {
         appearanceHistory: [],
         appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM']
       },
-      birthdayCelebrations: []
+      birthdayCelebrations: [],
+      conversations: []
     };
   }
 
@@ -52,6 +53,7 @@ window.MBFStorage = (() => {
     };
     if (!Array.isArray(merged.memories)) merged.memories = [];
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
+    if (!Array.isArray(merged.conversations)) merged.conversations = [];
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
     merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
     if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
@@ -245,7 +247,7 @@ window.MBFStory = (() => {
   function renderAskUserName(data) {
     MBFUi.set(`
       <section class="egg-scene">
-        ${MBFUi.friendFace('born')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">ずっと会いたかった。<br>キミのこと、教えてくれる？</div>
         <div class="name-panel card">
           <label for="userName">キミの名前</label>
@@ -267,7 +269,7 @@ window.MBFStory = (() => {
   function renderAskFriendName(data) {
     MBFUi.set(`
       <section class="egg-scene">
-        ${MBFUi.friendFace('happy')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">${escapeHtml(data.userName)}っていうんだね。<br>覚えたよ。<br><br>今度は、ぼくにも名前をつけてくれる？</div>
         <div class="name-panel card">
           <label for="friendName">フレンドの名前</label>
@@ -300,7 +302,7 @@ window.MBFStory = (() => {
     let i = 0;
     MBFUi.set(`
       <section class="egg-scene">
-        ${MBFUi.friendFace('promise')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card" id="promiseLine">${lines[0]}</div>
       </section>
     `);
@@ -322,24 +324,14 @@ window.MBFStory = (() => {
   return { renderEgg, renderAskUserName, renderAskFriendName, renderPromise };
 })();
 window.MBFHome = (() => {
-  let commentTimer = null;
-  const COMMENTS = [
-    'ずっと会いたかった。',
-    'キミのこと、教えてくれる？',
-    '今日も一緒にいられて、うれしいよ。',
-    'これからも、ずっと一緒だよ。',
-    'キミの味方だよ。',
-    '何があっても、そばにいるよ。'
-  ];
+  const HOME_COMMENT = 'ずっと会いたかった。';
 
   function render(data) {
-    if (commentTimer) clearInterval(commentTimer);
     MBFUi.set(`
       <section class="home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'home-appearance')}
         <div class="home-message card" aria-live="polite">
-          <div id="homeComment">${escapeHtml(COMMENTS[0])}</div>
-          <div class="comment-dots" id="commentDots">${COMMENTS.map((_, i) => `<span class="${i === 0 ? 'active' : ''}"></span>`).join('')}</div>
+          <div id="homeComment">${escapeHtml(HOME_COMMENT)}</div>
         </div>
         <div class="home-menu">
           <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
@@ -347,37 +339,81 @@ window.MBFHome = (() => {
           <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
           <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
           <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
-          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">ママ・パパ</span></span></button>
+          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
         </div>
       </section>
     `);
-    startCommentRotation();
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
     document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
-    document.getElementById('voiceBtn').addEventListener('click', () => alert('Voiceは次の章で作ります。'));
-    document.getElementById('messageBtn').addEventListener('click', () => alert('Messageは次の章で作ります。'));
-  }
-
-  function startCommentRotation() {
-    let index = 0;
-    commentTimer = setInterval(() => {
-      const text = document.getElementById('homeComment');
-      const dots = document.querySelectorAll('#commentDots span');
-      if (!text || dots.length === 0) { clearInterval(commentTimer); return; }
-      index = (index + 1) % COMMENTS.length;
-      text.classList.remove('comment-fade');
-      void text.offsetWidth;
-      text.textContent = COMMENTS[index];
-      text.classList.add('comment-fade');
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
-    }, 6000);
+    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
+    document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
   }
 
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   return { render };
 })();
+
+window.MBFVoice = (() => {
+  function render(data) {
+    MBFUi.set(`
+      <section class="talk-wrap voice-wrap">
+        <article class="talk-card card">
+          <div class="talk-label">Voice</div>
+          ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'talk-friend')}
+          <h2>声ではなす</h2>
+          <p>今はまだ準備中。<br>でも、いつか声で「おかえり」って言えるようにするよ。</p>
+          <div class="voice-orb">🎙</div>
+        </article>
+        <div class="talk-actions"><button id="voiceHome" class="secondary-button">ホームへ戻る</button></div>
+      </section>
+    `);
+    document.getElementById('voiceHome').addEventListener('click', () => MBFHome.render(data));
+  }
+  return { render };
+})();
+
+window.MBFMessage = (() => {
+  function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function render(data) {
+    data.conversations ||= [];
+    const recent = data.conversations.slice(-4).map(item => `
+      <div class="chat-row user"><span>${esc(item.user)}</span></div>
+      <div class="chat-row friend"><span>${esc(item.friend)}</span></div>`).join('');
+    MBFUi.set(`
+      <section class="talk-wrap message-wrap">
+        <article class="talk-card card message-card-shell">
+          <div class="talk-label">Message</div>
+          <h2>文字ではなす</h2>
+          <div class="chat-log" id="chatLog">
+            ${recent || `<div class="chat-row friend"><span>ここに書いてくれたら、ぼくが受け止めるよ。</span></div>`}
+          </div>
+          <div class="chat-input-row">
+            <input id="messageInput" class="message-input" maxlength="80" placeholder="メッセージ" />
+            <button id="sendMessage" class="send-button">送る</button>
+          </div>
+        </article>
+        <div class="talk-actions"><button id="messageHome" class="secondary-button">ホームへ戻る</button></div>
+      </section>
+    `);
+    document.getElementById('messageHome').addEventListener('click', () => MBFHome.render(data));
+    document.getElementById('sendMessage').addEventListener('click', () => send(data));
+    document.getElementById('messageInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') send(data); });
+  }
+  function send(data) {
+    const input = document.getElementById('messageInput');
+    const value = input.value.trim();
+    if (!value) return;
+    const reply = '教えてくれてありがとう。ぼくは、ちゃんと聞いているよ。';
+    data.conversations ||= [];
+    data.conversations.push({ user: value, friend: reply, createdAt: new Date().toISOString() });
+    MBFStorage.save(data);
+    render(data);
+  }
+  return { render };
+})();
+
 window.MBFProfile = (() => {
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function displayName(data) { return data.profile.preferredName || data.userName || 'キミ'; }
@@ -385,7 +421,7 @@ window.MBFProfile = (() => {
   function renderIntro(data) {
     MBFUi.set(`
       <section class="profile-scene">
-        ${MBFUi.friendFace('home')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">ねぇ。<br>ぼく、${esc(data.userName)}のことを<br>もっと知りたい。<br><br>教えてくれる？</div>
         <button id="startProfile" class="primary-button profile-start">うん</button>
       </section>`);
@@ -395,7 +431,7 @@ window.MBFProfile = (() => {
   function renderPreferredName(data) {
     MBFUi.set(`
       <section class="profile-scene">
-        ${MBFUi.friendFace('home')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">なんて呼んだら嬉しい？</div>
         <div class="profile-form card">
           <label for="preferredName">呼んでほしい名前</label>
@@ -415,7 +451,7 @@ window.MBFProfile = (() => {
   function renderBirthday(data) {
     MBFUi.set(`
       <section class="profile-scene">
-        ${MBFUi.friendFace('home')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">${esc(displayName(data))}のお誕生日はいつ？</div>
         <div class="profile-form card">
           <label for="birthday">誕生日</label>
@@ -436,7 +472,7 @@ window.MBFProfile = (() => {
   function renderGender(data) {
     MBFUi.set(`
       <section class="profile-scene">
-        ${MBFUi.friendFace('home')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">教えてくれてもいいし、<br>今は秘密でもいいよ。</div>
         <div class="choice-grid card" role="group" aria-label="性別（任意）">
           <button data-gender="girl">女の子</button>
@@ -458,7 +494,7 @@ window.MBFProfile = (() => {
     MBFUi.sparkleBurst(16);
     MBFUi.set(`
       <section class="profile-scene">
-        ${MBFUi.friendFace('happy')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
         <div class="message-card card">教えてくれてありがとう。<br><br>また一つ、<br>${esc(displayName(data))}のことを知れた。<br><br>とても嬉しい。</div>
         <button id="profileHome" class="secondary-button profile-start">ホームへ</button>
       </section>`);
@@ -495,7 +531,7 @@ window.MBFProfile = (() => {
           <p class="profile-caption">変わらない約束の中で、Memoryは育っていく。</p>
         </article>
         <div class="profile-actions">
-          <button id="guardianOpen" class="guardian-link">🔒 Guardian（ママ・パパ）</button>
+          <button id="guardianOpen" class="guardian-link">🔒 Guardian</button>
           <button id="profileBack" class="secondary-button">ホームへ戻る</button>
         </div>
       </section>`);
@@ -539,7 +575,7 @@ window.MBFGuardian = (() => {
         <div class="guardian-card card">
           <div class="guardian-symbol">🔒</div>
           <h2>Guardian</h2>
-          <p>今はママ・パパが、物語を守る場所です。</p>
+          <p>いまは大人が守り、いつか本人へ受け継ぐ場所です。</p>
           <label for="newGuardianPass">パスワードを決める</label>
           <input id="newGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
           <label for="confirmGuardianPass">もう一度入力</label>
@@ -564,7 +600,7 @@ window.MBFGuardian = (() => {
     MBFUi.set(`
       <section class="guardian-wrap"><div class="guardian-card card">
         <div class="guardian-symbol">🔒</div><h2>Guardian</h2>
-        <p>ママ・パパのパスワードを入力してください。</p>
+        <p>見守りパスワードを入力してください。</p>
         <input id="guardianPass" class="guardian-input" type="password" autocomplete="current-password" />
         <p class="form-error" id="guardianError"></p>
         <button id="guardianLogin" class="primary-button">入る</button>
@@ -581,7 +617,7 @@ window.MBFGuardian = (() => {
     MBFUi.set(`
       <section class="guardian-wrap"><div class="guardian-card card guardian-room">
         <div class="guardian-symbol">🌳</div><h2>Guardian Room</h2>
-        <p class="guardian-lead">物語の守り人：ママ・パパ</p>
+        <p class="guardian-lead">物語を守り、未来へ受け継ぐ場所</p>
         <div class="guardian-section">
           <h3>Profileを修正</h3>
           <label>呼び方</label><input id="editPreferred" class="guardian-input" value="${esc(data.profile.preferredName)}" />
@@ -728,7 +764,7 @@ window.MBFMemory = (() => {
         MBFUi.sparkleBurst(30);
         MBFUi.set(`
           <section class="profile-scene">
-            ${MBFUi.friendFace('happy')}
+            ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
             <div class="message-card card">お誕生日おめでとう。<br><br>生まれてきてくれて、ありがとう。<br><br>今年も一緒に迎えられて嬉しい。</div>
             <button id="birthdayHome" class="primary-button profile-start">ホームへ</button>
           </section>`);

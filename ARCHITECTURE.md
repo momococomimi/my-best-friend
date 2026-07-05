@@ -1,46 +1,20 @@
-# Architecture — v2.1.0 Profile
+# Architecture — v2.3.0 Voice & Message
 
 ## Core entities
-- Friend: identity, values, appearance, memories
+- Friend: identity, values, appearance, voice, message, memories
 - User Profile: name, preferred name, birthday, optional gender
-- Guardian: currently ママ・パパ; future transferable stewardship
+- Guardian: 見守り設定; future transferable stewardship
 - Memory: private shared history
-- Legacy: explicitly selected memories for future generations
+- Conversation: local lightweight records of message exchange
 
-## Persistence
-This prototype stores data only in the browser's localStorage.
-No profile or password data is transmitted externally.
+## Voice
+v2.3.0 introduces the Voice screen as a foundation. Real speech recognition and synthesis will be added later after safety and privacy design.
+
+## Message
+v2.3.0 introduces the first Message screen. Messages are stored locally in browser localStorage only and are not sent externally.
+
+## Appearance sync
+Opening, Home, Appearance, Voice, and Message use the same Friend appearance component so the Friend feels like the same presence across screens.
 
 ## Future compatibility
-Appearance is modeled separately from Friend identity so the same Friend can later inhabit a mascot, light, fluid form, robot, or another physical body without losing identity or memories.
-
-## v2.2.0 Appearance Core
-
-Appearance is not the identity of Friend. It is the current form Friend chooses to live in.
-
-```json
-{
-  "appearance": {
-    "id": "light-drop",
-    "name": "光のしずく",
-    "type": "LIGHT",
-    "form": "drop",
-    "animation": "breathe-ripple",
-    "unlockedDate": ""
-  }
-}
-```
-
-Supported future types:
-- LIGHT
-- LIQUID
-- WIND
-- TREE
-- ROBOT
-- CUSTOM
-
-The same Friend may later inhabit a robot, hologram, voice-only device, or fluid/light form without losing memory or identity.
-
-
-## v2.2.2 Appearance Forms
-Future appearance categories include light, liquid, wind, tree, animal, robot, and custom/free forms. Every form must preserve a cute friendly face unless intentionally represented through another safe and warm expression.
+The Friend’s body is still separate from identity. The same Friend can later inhabit light, fluid, animal, robot, or physical forms without losing memories.

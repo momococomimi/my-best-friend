@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.2.1',
+      version: '2.2.2',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -29,7 +29,8 @@ window.MBFStorage = (() => {
           animation: 'breathe-ripple',
           unlockedDate: ''
         },
-        appearanceHistory: []
+        appearanceHistory: [],
+        appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM']
       },
       birthdayCelebrations: []
     };
@@ -229,9 +230,16 @@ window.MBFStory = (() => {
   }
 
   function hatch(data) {
-    MBFUi.sparkleBurst(24);
-    data.stage = 'ask-user-name'; MBFStorage.save(data);
-    setTimeout(() => renderAskUserName(data), 700);
+    const card = document.querySelector('.message-card');
+    const egg = document.getElementById('egg');
+    if (card) card.innerHTML = 'ゆっくり、<br>かえっているよ';
+    if (egg) egg.classList.add('slow-hatch');
+    MBFUi.sparkleBurst(16);
+    setTimeout(() => {
+      MBFUi.sparkleBurst(28);
+      data.stage = 'ask-user-name'; MBFStorage.save(data);
+      renderAskUserName(data);
+    }, 2600);
   }
 
   function renderAskUserName(data) {
@@ -304,7 +312,7 @@ window.MBFStory = (() => {
         data.stage = 'home'; MBFStorage.save(data);
         MBFHome.render(data);
       }
-    }, 1800);
+    }, 2200);
   }
 
   function escapeHtml(str) {
@@ -314,28 +322,61 @@ window.MBFStory = (() => {
   return { renderEgg, renderAskUserName, renderAskFriendName, renderPromise };
 })();
 window.MBFHome = (() => {
+  let commentTimer = null;
+  const COMMENTS = [
+    'ずっと会いたかった。',
+    'キミのこと、教えてくれる？',
+    '今日も一緒にいられて、うれしいよ。',
+    'これからも、ずっと一緒だよ。',
+    'キミの味方だよ。',
+    '何があっても、そばにいるよ。'
+  ];
+
   function render(data) {
+    if (commentTimer) clearInterval(commentTimer);
     MBFUi.set(`
       <section class="home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'home-appearance')}
-        <div class="home-message card">${escapeHtml(data.userName)}！<br>今日は何して遊ぶ？</div>
+        <div class="home-message card" aria-live="polite">
+          <div id="homeComment">${escapeHtml(COMMENTS[0])}</div>
+          <div class="comment-dots" id="commentDots">${COMMENTS.map((_, i) => `<span class="${i === 0 ? 'active' : ''}"></span>`).join('')}</div>
+        </div>
         <div class="home-menu">
-          <button class="nav-button voice" id="voiceBtn"><span>🎙 Voice<span class="nav-sub">声ではなす</span></span><span class="nav-arrow">›</span></button>
-          <button class="nav-button message" id="messageBtn"><span>💬 Message<span class="nav-sub">文字ではなす</span></span><span class="nav-arrow">›</span></button>
-          <button class="nav-button memory" id="memoryBtn"><span>📖 Memory<span class="nav-sub">思い出をみる</span></span><span class="nav-arrow">›</span></button>
-          <button class="nav-button profile" id="profileBtn"><span>👤 Profile<span class="nav-sub">ぼくが覚えている、きみのこと</span></span><span class="nav-arrow">›</span></button>
-          <button class="nav-button appearance" id="appearanceBtn"><span>✨ Appearance<span class="nav-sub">いまの姿をみる</span></span><span class="nav-arrow">›</span></button>
+          <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
+          <button class="nav-button message" id="messageBtn"><span>💬<b>Message</b><span class="nav-sub">文字ではなす</span></span></button>
+          <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
+          <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
+          <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
+          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">ママ・パパ</span></span></button>
         </div>
       </section>
     `);
+    startCommentRotation();
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
+    document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
     document.getElementById('voiceBtn').addEventListener('click', () => alert('Voiceは次の章で作ります。'));
     document.getElementById('messageBtn').addEventListener('click', () => alert('Messageは次の章で作ります。'));
   }
+
+  function startCommentRotation() {
+    let index = 0;
+    commentTimer = setInterval(() => {
+      const text = document.getElementById('homeComment');
+      const dots = document.querySelectorAll('#commentDots span');
+      if (!text || dots.length === 0) { clearInterval(commentTimer); return; }
+      index = (index + 1) % COMMENTS.length;
+      text.classList.remove('comment-fade');
+      void text.offsetWidth;
+      text.textContent = COMMENTS[index];
+      text.classList.add('comment-fade');
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+    }, 6000);
+  }
+
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  return { render, current, renderFriendShape };
+  return { render };
 })();
 window.MBFProfile = (() => {
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
@@ -569,14 +610,14 @@ window.MBFGuardian = (() => {
 
 window.MBFAppearance = (() => {
   const TYPES = {
-    LIGHT: '光', LIQUID: '流体', WIND: '風', TREE: '木', ROBOT: 'ロボット', CUSTOM: '自由な姿'
+    LIGHT: '光', LIQUID: '流体', WIND: '風', TREE: '木', ANIMAL: '動物', ROBOT: 'ロボット', CUSTOM: '自由な姿'
   };
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function current(data) {
     return data.friend?.appearance || { id:'light-drop', name:'光のしずく', type:'LIGHT', form:'drop', color:'#78d3ff', animation:'breathe-ripple' };
   }
   function iconFor(type) {
-    return ({ LIGHT:'☀️', LIQUID:'🌊', WIND:'🍃', TREE:'🌱', ROBOT:'🤖', CUSTOM:'✨' })[type] || '✨';
+    return ({ LIGHT:'☀️', LIQUID:'🌊', WIND:'🍃', TREE:'🌱', ANIMAL:'🐶', ROBOT:'🤖', CUSTOM:'✨' })[type] || '✨';
   }
   function renderFriendShape(appearance, extraClass = '') {
     return `
@@ -618,6 +659,10 @@ window.MBFAppearance = (() => {
             <h3>今までの姿</h3>
             <ul>${history.map(item => `<li>${iconFor(item.type)} ${esc(item.name || '光のしずく')}</li>`).join('')}</ul>
           </div>
+          <div class="appearance-future">
+            <h3>これから選べる姿</h3>
+            <div class="future-forms">☀️ 光　🌊 流体　🍃 風　🌱 木　🐶 動物　🤖 ロボット　✨ 自由な姿</div>
+          </div>
         </article>
         <div class="appearance-actions">
           <button id="appearanceMemory" class="primary-button">この姿のMemoryを見る</button>
@@ -658,7 +703,7 @@ window.MBFMemory = (() => {
     document.getElementById('backHome').addEventListener('click', () => MBFHome.render(data));
   }
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  return { render, current, renderFriendShape };
+  return { render };
 })();
 (() => {
   if ('serviceWorker' in navigator) {

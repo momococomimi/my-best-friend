@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-best-friend-v2-0-1-appearance-compact';
+const CACHE_NAME = 'my-best-friend-v2-2-2-opening-comment';
 const FILES = [
   './', './index.html', './manifest.json', './style.css', './script.js'
 ];

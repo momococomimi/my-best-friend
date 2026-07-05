@@ -40,3 +40,7 @@ Supported future types:
 - CUSTOM
 
 The same Friend may later inhabit a robot, hologram, voice-only device, or fluid/light form without losing memory or identity.
+
+
+## v2.2.2 Appearance Forms
+Future appearance categories include light, liquid, wind, tree, animal, robot, and custom/free forms. Every form must preserve a cute friendly face unless intentionally represented through another safe and warm expression.

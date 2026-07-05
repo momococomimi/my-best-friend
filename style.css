@@ -781,3 +781,178 @@ body[data-screen="talk-wrap"] .screen { height: calc(100svh - 76px - var(--safe-
   .talk-friend .light-drop { width: 115px; height: 115px; }
   .voice-orb { width: 58px; height: 58px; font-size: 28px; }
 }
+
+/* v2.3.1 Touch Friend & Compact Home */
+body[data-screen="home-scene"] {
+  overflow: hidden;
+}
+body[data-screen="home-scene"] .app-shell {
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: calc(18px + var(--safe-top)) 14px calc(12px + var(--safe-bottom));
+}
+body[data-screen="home-scene"] .app-header {
+  margin: 0 auto 2px;
+}
+body[data-screen="home-scene"] .app-header h1 {
+  font-size: clamp(38px, 9.8vw, 56px);
+  line-height: .95;
+}
+body[data-screen="home-scene"] .app-header p {
+  margin-top: 7px;
+  font-size: clamp(12px, 3.05vw, 16px);
+}
+body[data-screen="home-scene"] .screen {
+  height: calc(100svh - 112px - var(--safe-top) - var(--safe-bottom));
+  display: grid;
+}
+.home-scene {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(210px, 1fr) auto auto;
+  align-content: end;
+  gap: 8px;
+  padding-bottom: 0;
+}
+.home-scene .appearance-stage.home-appearance {
+  height: clamp(220px, 40svh, 300px);
+  align-self: end;
+  margin: -18px auto -2px;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  width: clamp(214px, 56vw, 292px);
+  height: clamp(214px, 56vw, 292px);
+  cursor: pointer;
+}
+.home-scene .drop-sprout {
+  font-size: clamp(30px, 7.5vw, 46px);
+  bottom: -6.5%;
+}
+.home-message {
+  width: min(92vw, 640px);
+  min-height: 58px;
+  padding: 11px 14px;
+  margin: 0 auto;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  font-size: clamp(17px, 4.4vw, 24px);
+  line-height: 1.35;
+}
+#homeComment {
+  min-height: 1.35em;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.home-menu {
+  width: min(92vw, 640px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 8px;
+}
+.nav-button {
+  width: 100%;
+  min-height: clamp(58px, 8.1svh, 72px);
+  border-radius: 16px;
+  padding: 7px 4px 6px;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 7px 0 rgba(164, 92, 18, .30), 0 12px 22px rgba(41,82,96,.13);
+}
+.nav-button > span:first-child {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  font-size: clamp(17px, 4.4vw, 23px);
+  line-height: 1;
+}
+.nav-button b {
+  font-size: clamp(12px, 3.15vw, 16px);
+  line-height: 1;
+}
+.nav-button .nav-sub {
+  font-size: clamp(8px, 2.15vw, 10px);
+  line-height: 1.08;
+  margin-top: 1px;
+}
+.nav-button.profile, .nav-button.appearance, .nav-button.guardian {
+  min-height: clamp(58px, 8.1svh, 72px);
+}
+.nav-button.guardian .nav-sub { font-size: clamp(8px, 2.05vw, 10px); }
+
+.light-drop[role="button"] { outline: none; }
+.light-drop[role="button"]:focus-visible { box-shadow: 0 0 0 6px rgba(255,255,255,.7), 0 0 0 10px rgba(109,198,245,.5), inset 0 -18px 32px rgba(26,107,155,.13), 0 28px 56px rgba(36,112,148,.18); }
+.light-drop.touch-pop { animation: touchPop .65s ease both, liquidBreathe 5.2s ease-in-out infinite; }
+.light-drop.face-happy .drop-eye {
+  width: 11.5%;
+  height: 8%;
+  top: 43%;
+  background: transparent;
+  border-top: max(4px, .9vw) solid #153340;
+  border-radius: 999px 999px 0 0;
+  animation: none;
+}
+.light-drop.face-happy .drop-mouth {
+  left: 42%;
+  top: 56%;
+  width: 17%;
+  height: 12%;
+}
+.light-drop.face-happy::after {
+  content: '♡';
+  position: absolute;
+  right: -12%;
+  top: 12%;
+  color: #ff77aa;
+  font-size: clamp(24px, 6vw, 42px);
+  text-shadow: 0 4px 12px rgba(255,119,170,.28);
+  animation: heartFloat 1.2s ease-out both;
+}
+@keyframes touchPop {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.045); }
+  65% { transform: scale(.985); }
+}
+@keyframes heartFloat {
+  from { opacity: 0; transform: translateY(10px) scale(.7); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(-34px) scale(1.05); }
+}
+
+/* Opening/Profile compact no-scroll bias */
+body[data-screen="egg-scene"] .app-shell,
+body[data-screen="profile-scene"] .app-shell {
+  min-height: 100svh;
+  padding-top: calc(18px + var(--safe-top));
+}
+.egg-scene,
+.profile-scene {
+  min-height: calc(100svh - 155px - var(--safe-top) - var(--safe-bottom));
+  gap: 14px;
+}
+.egg-scene .appearance-stage.story-appearance,
+.profile-scene .appearance-stage.story-appearance {
+  margin-top: -10px;
+}
+
+@media (max-height: 760px), (max-width: 390px) {
+  body[data-screen="home-scene"] .app-shell { padding-left: 12px; padding-right: 12px; }
+  body[data-screen="home-scene"] .app-header h1 { font-size: clamp(34px, 9.1vw, 48px); }
+  body[data-screen="home-scene"] .app-header p { font-size: 11px; margin-top: 5px; }
+  body[data-screen="home-scene"] .screen { height: calc(100svh - 96px - var(--safe-top) - var(--safe-bottom)); }
+  .home-scene { grid-template-rows: minmax(175px, 1fr) auto auto; gap: 6px; }
+  .home-scene .appearance-stage.home-appearance { height: 190px; margin-top: -22px; }
+  .home-scene .appearance-stage.home-appearance .light-drop { width: 178px; height: 178px; }
+  .home-scene .drop-sprout { font-size: 27px; }
+  .home-message { min-height: 48px; padding: 8px 10px; font-size: 16px; border-radius: 19px; }
+  .home-menu { gap: 6px; }
+  .nav-button, .nav-button.profile, .nav-button.appearance, .nav-button.guardian { min-height: 52px; border-radius: 14px; padding: 5px 2px; }
+  .nav-button > span:first-child { font-size: 15px; }
+  .nav-button b { font-size: 10.5px; }
+  .nav-button .nav-sub { font-size: 7px; }
+}

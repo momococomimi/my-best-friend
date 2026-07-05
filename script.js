@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.3.0',
+      version: '2.3.1',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -324,14 +324,22 @@ window.MBFStory = (() => {
   return { renderEgg, renderAskUserName, renderAskFriendName, renderPromise };
 })();
 window.MBFHome = (() => {
-  const HOME_COMMENT = 'ずっと会いたかった。';
+  const HOME_COMMENTS = [
+    'ずっと会いたかった。',
+    'キミのこと、教えてくれる？',
+    '今日も一緒にいられて、うれしいよ。',
+    'これからも、ずっと一緒だよ。',
+    '何があっても、そばにいるよ。'
+  ];
+  let commentTimer = null;
 
   function render(data) {
+    if (commentTimer) clearInterval(commentTimer);
     MBFUi.set(`
       <section class="home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'home-appearance')}
         <div class="home-message card" aria-live="polite">
-          <div id="homeComment">${escapeHtml(HOME_COMMENT)}</div>
+          <div id="homeComment">${escapeHtml(HOME_COMMENTS[0])}</div>
         </div>
         <div class="home-menu">
           <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
@@ -343,12 +351,33 @@ window.MBFHome = (() => {
         </div>
       </section>
     `);
+    MBFAppearance.bindFriendTouch(document.querySelector('.home-appearance'), () => {
+      setHomeComment('えへへ。ここにいるよ。');
+    });
+    startComments();
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
     document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
     document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
     document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
+  }
+
+  function startComments() {
+    let index = 0;
+    commentTimer = setInterval(() => {
+      index = (index + 1) % HOME_COMMENTS.length;
+      setHomeComment(HOME_COMMENTS[index]);
+    }, 6500);
+  }
+
+  function setHomeComment(text) {
+    const el = document.getElementById('homeComment');
+    if (!el) return;
+    el.classList.remove('comment-fade');
+    void el.offsetWidth;
+    el.textContent = text;
+    el.classList.add('comment-fade');
   }
 
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
@@ -369,6 +398,7 @@ window.MBFVoice = (() => {
         <div class="talk-actions"><button id="voiceHome" class="secondary-button">ホームへ戻る</button></div>
       </section>
     `);
+    MBFAppearance.bindFriendTouch(document.querySelector('.talk-friend'));
     document.getElementById('voiceHome').addEventListener('click', () => MBFHome.render(data));
   }
   return { render };
@@ -658,7 +688,7 @@ window.MBFAppearance = (() => {
   function renderFriendShape(appearance, extraClass = '') {
     return `
       <div class="appearance-stage ${esc(extraClass)}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
-        <div class="light-drop" aria-label="${esc(appearance.name || 'フレンド')}">
+        <div class="light-drop" role="button" tabindex="0" aria-label="${esc(appearance.name || 'フレンド')}">
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>
           <span class="drop-wave wave-two"></span>
@@ -709,7 +739,25 @@ window.MBFAppearance = (() => {
     document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
   }
-  return { render, current, renderFriendShape };
+  function bindFriendTouch(root, onTouch) {
+    const target = root?.querySelector?.('.light-drop') || root;
+    if (!target) return;
+    const play = () => {
+      target.classList.remove('face-happy', 'touch-pop');
+      void target.offsetWidth;
+      target.classList.add('face-happy', 'touch-pop');
+      if (typeof onTouch === 'function') onTouch();
+      setTimeout(() => target.classList.remove('face-happy'), 1800);
+      setTimeout(() => target.classList.remove('touch-pop'), 700);
+      MBFUi.vibrate(16);
+    };
+    target.addEventListener('click', play);
+    target.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); play(); }
+    });
+  }
+
+  return { render, current, renderFriendShape, bindFriendTouch };
 })();
 
 window.MBFMemory = (() => {

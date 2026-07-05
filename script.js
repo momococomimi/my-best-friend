@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.3.1',
+      version: '2.3.2',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -210,6 +210,7 @@ window.MBFUi = (() => {
 })();
 window.MBFStory = (() => {
   let taps = 0;
+  let isHatching = false;
 
   function renderEgg(data) {
     MBFUi.set(`
@@ -222,6 +223,7 @@ window.MBFStory = (() => {
   }
 
   function touchEgg(data) {
+    if (isHatching) return;
     taps++;
     const egg = document.getElementById('egg');
     egg.classList.remove('bump'); void egg.offsetWidth; egg.classList.add('bump');
@@ -232,6 +234,8 @@ window.MBFStory = (() => {
   }
 
   function hatch(data) {
+    if (isHatching) return;
+    isHatching = true;
     const card = document.querySelector('.message-card');
     const egg = document.getElementById('egg');
     if (card) card.innerHTML = 'ゆっくり、<br>かえっているよ';
@@ -240,7 +244,7 @@ window.MBFStory = (() => {
     setTimeout(() => {
       MBFUi.sparkleBurst(28);
       data.stage = 'ask-user-name'; MBFStorage.save(data);
-      renderAskUserName(data);
+      requestAnimationFrame(() => renderAskUserName(data));
     }, 2600);
   }
 
@@ -347,7 +351,7 @@ window.MBFHome = (() => {
           <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
           <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
           <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
-          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
+          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>見守り</b><span class="nav-sub">設定</span></span></button>
         </div>
       </section>
     `);
@@ -791,7 +795,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=2.3.2').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

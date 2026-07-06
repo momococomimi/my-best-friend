@@ -33,3 +33,7 @@ The Friend’s body is still separate from identity. The same Friend can later i
 - Appearance changes automatically based on Mood.
 - Care actions can gently change Mood without using points, levels, or rewards.
 - The Friend remains the same identity even when color, light, or animation changes.
+
+
+## v2.4.2
+Guardian Room supports user name editing instead of a separate preferred calling name. Setup screens and Home share a centered Friend layout. Guardian Room is scrollable on iPhone Safari.

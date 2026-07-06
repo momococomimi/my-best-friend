@@ -1579,3 +1579,89 @@ body[data-screen="profile-scene"] .screen {
   .egg-scene.setup-scene .message-card, .profile-scene .message-card { font-size: 15.5px !important; padding: 9px 12px !important; }
   .egg-scene.setup-scene .name-panel, .profile-scene .profile-form { padding: 9px !important; }
 }
+
+/* v2.4.2 Guardian & Setup Center Fix */
+body[data-screen="guardian-wrap"] .screen,
+body[data-screen="profile-wrap"] .screen,
+body[data-screen="memory-wrap"] .screen,
+body[data-screen="appearance-wrap"] .screen {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Opening/setup: keep Friend visually centered before Home */
+.egg-scene.setup-scene,
+.profile-scene {
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: minmax(235px, 1fr) auto auto !important;
+  align-content: stretch !important;
+  gap: clamp(14px, 2.2svh, 24px) !important;
+  overflow: hidden !important;
+  padding-bottom: max(8px, var(--safe-bottom)) !important;
+}
+.egg-scene.setup-scene .appearance-stage.story-appearance,
+.profile-scene .appearance-stage.story-appearance {
+  height: clamp(220px, 39svh, 330px) !important;
+  margin: 0 auto clamp(12px, 2svh, 22px) !important;
+  align-self: center !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.egg-scene.setup-scene .appearance-stage.story-appearance .light-drop,
+.profile-scene .appearance-stage.story-appearance .light-drop {
+  width: clamp(142px, 38vw, 208px) !important;
+  height: clamp(142px, 38vw, 208px) !important;
+}
+.egg-scene.setup-scene .message-card,
+.profile-scene .message-card {
+  margin-top: 0 !important;
+}
+.egg-scene.setup-scene .name-panel,
+.profile-scene .profile-form {
+  border-radius: clamp(21px, 5vw, 30px) !important;
+}
+
+/* Guardian Room: scrollable, name editable, safe input widths */
+.guardian-wrap {
+  min-height: 100% !important;
+  display: block !important;
+  padding: clamp(12px, 2svh, 22px) 0 max(40px, var(--safe-bottom)) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.guardian-card {
+  margin: 0 auto !important;
+  width: min(92vw, 650px) !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.guardian-room .guardian-section,
+.guardian-card .guardian-section {
+  overflow: hidden !important;
+}
+.guardian-input,
+.name-input,
+.date-input {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-height: 760px), (max-width: 390px) {
+  .egg-scene.setup-scene,
+  .profile-scene {
+    grid-template-rows: minmax(180px, 1fr) auto auto !important;
+    gap: 10px !important;
+  }
+  .egg-scene.setup-scene .appearance-stage.story-appearance,
+  .profile-scene .appearance-stage.story-appearance {
+    height: clamp(165px, 31svh, 240px) !important;
+    margin-bottom: 8px !important;
+  }
+  .egg-scene.setup-scene .appearance-stage.story-appearance .light-drop,
+  .profile-scene .appearance-stage.story-appearance .light-drop {
+    width: clamp(118px, 34vw, 160px) !important;
+    height: clamp(118px, 34vw, 160px) !important;
+  }
+}

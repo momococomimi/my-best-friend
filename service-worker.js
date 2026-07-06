@@ -1,6 +1,6 @@
 const CACHE_NAME = 'my-best-friend-v2-4-1-fit-fix';
 const FILES = [
-  './', './index.html?v=2.4.1', './manifest.json?v=2.4.1', './style.css?v=2.4.1', './script.js?v=2.4.1'
+  './', './index.html?v=2.4.2', './manifest.json?v=2.4.2', './style.css?v=2.4.2', './script.js?v=2.4.2'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES).catch(() => undefined)));
@@ -13,7 +13,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match('./index.html?v=2.4.1').then(r => r || caches.match('./'))));
+    event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match('./index.html?v=2.4.2').then(r => r || caches.match('./'))));
     return;
   }
   event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request)));

@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.4.1',
+      version: '2.4.2',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -428,7 +428,7 @@ window.MBFMood = (() => {
   }
   function label(mood) { return LABELS[mood || 'calm'] || LABELS.calm; }
   function comments(data) {
-    const name = data.profile?.preferredName || data.userName || 'キミ';
+    const name = data.userName || 'キミ';
     const h = nowHour();
     const base = [];
     if (h >= 5 && h < 10) base.push(`おはよう、${name}。`);
@@ -573,7 +573,7 @@ window.MBFMessage = (() => {
 
 window.MBFProfile = (() => {
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  function displayName(data) { return data.profile.preferredName || data.userName || 'キミ'; }
+  function displayName(data) { return data.userName || 'キミ'; }
 
   function renderIntro(data) {
     MBFUi.set(`
@@ -582,27 +582,7 @@ window.MBFProfile = (() => {
         <div class="message-card card">ねぇ。<br>ぼく、${esc(data.userName)}のことを<br>もっと知りたい。<br><br>教えてくれる？</div>
         <button id="startProfile" class="primary-button profile-start">うん</button>
       </section>`);
-    document.getElementById('startProfile').addEventListener('click', () => renderPreferredName(data));
-  }
-
-  function renderPreferredName(data) {
-    MBFUi.set(`
-      <section class="profile-scene">
-        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'story-appearance')}
-        <div class="message-card card">なんて呼んだら嬉しい？</div>
-        <div class="profile-form card">
-          <label for="preferredName">呼んでほしい名前</label>
-          <input id="preferredName" class="name-input" maxlength="16" value="${esc(data.profile.preferredName || data.userName)}" />
-          <button id="savePreferred" class="primary-button">これでいいよ</button>
-        </div>
-      </section>`);
-    document.getElementById('savePreferred').addEventListener('click', () => {
-      const value = document.getElementById('preferredName').value.trim();
-      if (!value) return;
-      data.profile.preferredName = value;
-      MBFStorage.save(data);
-      renderBirthday(data);
-    });
+    document.getElementById('startProfile').addEventListener('click', () => renderBirthday(data));
   }
 
   function renderBirthday(data) {
@@ -679,7 +659,6 @@ window.MBFProfile = (() => {
           <h2 class="profile-title">ぼくが覚えている、<br>きみのこと。</h2>
           <dl class="profile-list">
             <div><dt>名前</dt><dd>${esc(data.userName)}</dd></div>
-            <div><dt>呼び方</dt><dd>${esc(displayName(data))}</dd></div>
             <div><dt>誕生日</dt><dd>${esc(formatDate(data.profile.birthday))}</dd></div>
             <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
             <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
@@ -777,7 +756,7 @@ window.MBFGuardian = (() => {
         <p class="guardian-lead">物語を守り、未来へ受け継ぐ場所</p>
         <div class="guardian-section">
           <h3>Profileを修正</h3>
-          <label>呼び方</label><input id="editPreferred" class="guardian-input" value="${esc(data.profile.preferredName)}" />
+          <label>名前</label><input id="editUserName" class="guardian-input" maxlength="16" value="${esc(data.userName)}" />
           <label>誕生日</label><input id="editBirthday" class="guardian-input" type="date" value="${esc(data.profile.birthday)}" />
           <label>性別（任意）</label>
           <select id="editGender" class="guardian-input">
@@ -790,10 +769,20 @@ window.MBFGuardian = (() => {
       </div></section>`);
     document.getElementById('editGender').value=data.profile.gender || 'secret';
     document.getElementById('saveGuardianProfile').addEventListener('click', () => {
-      data.profile.preferredName=document.getElementById('editPreferred').value.trim() || data.userName;
+      const previousName = data.userName;
+      const newName = document.getElementById('editUserName').value.trim() || data.userName;
+      data.userName = newName;
+      data.profile.preferredName = newName;
       data.profile.birthday=document.getElementById('editBirthday').value;
       data.profile.gender=document.getElementById('editGender').value;
       data.profile.completed=Boolean(data.profile.birthday);
+      if (previousName !== newName) {
+        data.memories = (data.memories || []).map(memory => {
+          if (memory.type !== 'first-memory') return memory;
+          const updated = MBFStorage.createFirstMemory(newName, data.friendName);
+          return { ...updated, id: memory.id, createdAt: memory.createdAt, dateText: memory.dateText };
+        });
+      }
       MBFStorage.save(data); MBFUi.sparkleBurst(10);
     });
     document.getElementById('guardianDone').addEventListener('click', () => MBFProfile.renderBook(data));

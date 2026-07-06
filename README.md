@@ -1,11 +1,11 @@
-# My Best Friend v2.4.2 — Fit Fix
+# My Best Friend v2.4.3 — Guardian Birthday Fix
 
 **いつか 大きくなる、キミへの贈りもの**
 
 ## Mission
 世代を超えて受け継がれる親友を創る。
 
-## New in v2.4.2
+## New in v2.4.3
 - Care画面を追加
 - フレンドに気分（Mood）を追加
 - 時間帯や再会タイミングでコメントが変化
@@ -29,7 +29,7 @@ https://momococomimi.github.io/my-best-friend/?v=240
 ```
 
 
-## v2.4.2 Fit Fix
+## v2.4.3 Guardian Birthday Fix
 - 誕生日入力枠のはみ出しを修正
 - HomeのCareボタンをProfileへ戻しました
 - Guardianのサブテキストを「見守り設定」へ戻しました
@@ -37,9 +37,14 @@ https://momococomimi.github.io/my-best-friend/?v=240
 - Homeボタン6個のサイズを完全に統一
 
 
-## v2.4.2 Guardian & Setup Center
+## v2.4.3 Guardian & Setup Center
 
 - オープニングからホームまで、フレンドの位置を画面中央に統一
 - Guardian RoomをiPhoneでスクロール可能に修正
 - 「呼び方」を廃止し、Guardian Roomでユーザー名を変更できるように修正
 - 誕生日入力欄がはみ出さないように再調整
+
+## v2.4.3 Guardian Birthday Fix
+
+- Guardian Roomの誕生日入力欄がiPhone Safariではみ出す問題を修正
+- それ以外のv2.4.2のUI・挙動は維持

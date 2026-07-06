@@ -35,5 +35,9 @@ The Friend’s body is still separate from identity. The same Friend can later i
 - The Friend remains the same identity even when color, light, or animation changes.
 
 
-## v2.4.2
+## v2.4.3
 Guardian Room supports user name editing instead of a separate preferred calling name. Setup screens and Home share a centered Friend layout. Guardian Room is scrollable on iPhone Safari.
+
+## v2.4.3
+
+Guardian Roomのdate inputだけがiPhone Safariで横幅を超える問題に対して、`min-width: 0` と `appearance: none` を含む専用CSSを追加。

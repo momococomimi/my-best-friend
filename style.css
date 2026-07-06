@@ -1665,3 +1665,33 @@ body[data-screen="appearance-wrap"] .screen {
     height: clamp(118px, 34vw, 160px) !important;
   }
 }
+
+/* v2.4.3 Guardian Birthday Fix: keep date input inside card on iPhone Safari */
+.guardian-room #editBirthday,
+.guardian-card #editBirthday,
+.guardian-room input[type="date"].guardian-input {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: clamp(12px, 4vw, 18px) !important;
+  padding-right: clamp(12px, 4vw, 18px) !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  text-align: center !important;
+  font-size: clamp(19px, 5.2vw, 28px) !important;
+}
+.guardian-room .guardian-section,
+.guardian-card .guardian-section {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+.guardian-room label,
+.guardian-card label {
+  max-width: 100% !important;
+}

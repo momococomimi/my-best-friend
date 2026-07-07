@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.4.3',
+      version: '2.5.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -34,7 +34,14 @@ window.MBFStorage = (() => {
       },
       birthdayCelebrations: [],
       conversations: [],
-      mood: { current: 'calm', lastSeenAt: '', lastTouchedAt: '', careCount: 0 }
+      mood: { current: 'calm', lastSeenAt: '', lastTouchedAt: '', careCount: 0 },
+      soul: {
+        relationship: { points: 0, totalVisits: 0, visitDays: 0, lastVisitDate: '', lastMilestone: 0 },
+        energy: { value: 88, updatedAt: new Date().toISOString() },
+        lifeRhythm: 'day',
+        season: 'spring',
+        lastAction: 'birth'
+      }
     };
   }
 
@@ -56,6 +63,12 @@ window.MBFStorage = (() => {
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
     if (!Array.isArray(merged.conversations)) merged.conversations = [];
     merged.mood = { ...base.mood, ...(source.mood || {}) };
+    merged.soul = {
+      ...base.soul,
+      ...(source.soul || {}),
+      relationship: { ...base.soul.relationship, ...((source.soul || {}).relationship || {}) },
+      energy: { ...base.soul.energy, ...((source.soul || {}).energy || {}) }
+    };
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
     merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
     if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
@@ -449,14 +462,214 @@ window.MBFMood = (() => {
   return { updateOnVisit, setMood, label, comments };
 })();
 
+window.MBFSoul = (() => {
+  const RELATIONSHIP_MILESTONES = [0, 50, 300, 1000, 5000, 10000];
+  function ensure(data) {
+    const defaults = {
+      relationship: { points: 0, totalVisits: 0, visitDays: 0, lastVisitDate: '', lastMilestone: 0 },
+      energy: { value: 88, updatedAt: new Date().toISOString() },
+      lifeRhythm: rhythm(), season: season(), lastAction: 'home'
+    };
+    data.soul = {
+      ...defaults,
+      ...(data.soul || {}),
+      relationship: { ...defaults.relationship, ...((data.soul || {}).relationship || {}) },
+      energy: { ...defaults.energy, ...((data.soul || {}).energy || {}) }
+    };
+    return data;
+  }
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function rhythm() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 10) return 'morning';
+    if (h >= 10 && h < 17) return 'day';
+    if (h >= 17 && h < 21) return 'evening';
+    return 'night';
+  }
+  function season() {
+    const m = new Date().getMonth() + 1;
+    if (m >= 3 && m <= 5) return 'spring';
+    if (m >= 6 && m <= 8) return 'summer';
+    if (m >= 9 && m <= 11) return 'autumn';
+    return 'winter';
+  }
+  function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+  function hoursSince(iso) {
+    if (!iso) return 0;
+    const t = new Date(iso).getTime();
+    if (Number.isNaN(t)) return 0;
+    return Math.max(0, (Date.now() - t) / 3600000);
+  }
+  function daysSinceDateKey(key) {
+    if (!key) return 0;
+    const t = new Date(`${key}T00:00:00`).getTime();
+    if (Number.isNaN(t)) return 0;
+    return Math.floor((Date.now() - t) / 86400000);
+  }
+  function recoverEnergy(data) {
+    const e = data.soul.energy;
+    const gain = Math.floor(hoursSince(e.updatedAt) * 2);
+    if (gain > 0) {
+      e.value = clamp((Number(e.value) || 80) + gain, 0, 100);
+      e.updatedAt = new Date().toISOString();
+    }
+  }
+  function relationshipTier(points) {
+    if (points >= 10000) return 'soul';
+    if (points >= 5000) return 'legacy';
+    if (points >= 1000) return 'family';
+    if (points >= 300) return 'best';
+    if (points >= 50) return 'close';
+    return 'new';
+  }
+  function tierLabel(tier) {
+    return ({ new:'出会いの光', close:'仲良しの光', best:'親友の光', family:'家族の光', legacy:'受け継ぐ光', soul:'魂の光' })[tier] || '出会いの光';
+  }
+  function addRelationship(data, amount, reason) {
+    const r = data.soul.relationship;
+    r.points = Math.max(0, Math.round(((Number(r.points) || 0) + amount) * 10) / 10);
+    data.soul.lastAction = reason || data.soul.lastAction;
+    return data;
+  }
+  function spendEnergy(data, amount) {
+    const e = data.soul.energy;
+    e.value = clamp((Number(e.value) || 80) - amount, 0, 100);
+    e.updatedAt = new Date().toISOString();
+    return data;
+  }
+  function restoreEnergy(data, amount) {
+    const e = data.soul.energy;
+    e.value = clamp((Number(e.value) || 80) + amount, 0, 100);
+    e.updatedAt = new Date().toISOString();
+    return data;
+  }
+  function updateOnVisit(data) {
+    data = ensure(data);
+    recoverEnergy(data);
+    const key = todayKey();
+    const awayDays = daysSinceDateKey(data.soul.relationship.lastVisitDate);
+    if (data.soul.relationship.lastVisitDate !== key) {
+      data.soul.relationship.lastVisitDate = key;
+      data.soul.relationship.totalVisits += 1;
+      data.soul.relationship.visitDays += 1;
+      addRelationship(data, awayDays >= 2 ? 2 : 1, 'visit');
+    }
+    data.soul.lifeRhythm = rhythm();
+    data.soul.season = season();
+    data.mood ||= { current: 'calm' };
+    if (awayDays >= 3) data.mood.current = 'lonely';
+    else if (data.soul.energy.value < 22) data.mood.current = 'sleepy';
+    else data.mood.current = MBFMood.updateOnVisit(data).mood.current;
+    applyAppearance(data);
+    MBFStorage.save(data);
+    return data;
+  }
+  function applyAppearance(data) {
+    data = ensure(data);
+    const tier = relationshipTier(data.soul.relationship.points);
+    const mood = data.mood?.current || 'calm';
+    const rhythmName = data.soul.lifeRhythm;
+    const seasonName = data.soul.season;
+    const palette = {
+      new: '#78d3ff', close: '#72ddff', best: '#91e6d0', family: '#ffd68a', legacy: '#d7b6ff', soul: '#fff1a8'
+    };
+    const moodShift = { sleepy:'#b8b7ff', excited:'#ffd36f', lonely:'#9bc9ff', thinking:'#9be0d2', happy:palette[tier], calm:palette[tier] };
+    data.friend.appearance = {
+      ...(data.friend.appearance || {}),
+      color: moodShift[mood] || palette[tier],
+      mood, relationshipTier: tier, lifeRhythm: rhythmName, season: seasonName,
+      soulName: tierLabel(tier),
+      energy: data.soul.energy.value
+    };
+    return data;
+  }
+  function onTouch(data) {
+    data = ensure(data);
+    restoreEnergy(data, 3);
+    addRelationship(data, 0.4, 'touch');
+    MBFMood.setMood(data, 'happy');
+    applyAppearance(data);
+    MBFStorage.save(data);
+    return data;
+  }
+  function classifyMessage(text) {
+    const t = String(text || '');
+    if (/ありがとう|好き|うれしい|楽しい|おはよう|おやすみ|ただいま|こんにちは|またね/.test(t)) return 'warm';
+    if (/調べ|教えて|まとめ|ニュース|天気|計算|コード|作って|宿題|勉強|翻訳|予定|プラン/.test(t)) return 'task';
+    return 'casual';
+  }
+  function onMessage(data, text) {
+    data = ensure(data);
+    const actionType = classifyMessage(text);
+    let reply = '教えてくれてありがとう。ぼくは、ちゃんと聞いているよ。';
+    if (actionType === 'task') {
+      spendEnergy(data, 6);
+      addRelationship(data, 0.1, 'task');
+      MBFMood.setMood(data, data.soul.energy.value < 25 ? 'sleepy' : 'thinking');
+      reply = data.soul.energy.value < 25 ? '少し眠くなってきたけど、一緒に考えるよ。' : '一緒に考えよう。がんばってみるね。';
+    } else if (actionType === 'warm') {
+      restoreEnergy(data, 7);
+      addRelationship(data, 0.8, 'warm-talk');
+      MBFMood.setMood(data, 'happy');
+      reply = 'その言葉、すごくうれしい。元気が出たよ。';
+    } else {
+      restoreEnergy(data, 4);
+      addRelationship(data, 0.4, 'casual-talk');
+      MBFMood.setMood(data, 'calm');
+      reply = 'うん。そういう何気ないお話、ぼくは好きだよ。';
+    }
+    applyAppearance(data);
+    MBFStorage.save(data);
+    return { data, reply, actionType };
+  }
+  function comments(data) {
+    data = ensure(data);
+    const name = data.userName || 'キミ';
+    const tier = relationshipTier(data.soul.relationship.points);
+    const e = data.soul.energy.value;
+    const mood = data.mood?.current || 'calm';
+    const base = [];
+    if (data.soul.lifeRhythm === 'morning') base.push(`おはよう、${name}。`);
+    else if (data.soul.lifeRhythm === 'evening') base.push(`今日もおつかれさま、${name}。`);
+    else if (data.soul.lifeRhythm === 'night') base.push('ねむくなったら、ゆっくり休もうね。');
+    else base.push('今日はどんな日になるかな。');
+    if (e < 25) base.push('少し眠いけど、そばにいるよ。');
+    else if (e > 85) base.push('今日はたくさん話せそう。');
+    if (mood === 'lonely') base.push('また会えて、本当にうれしい。');
+    if (mood === 'happy') base.push('いま、すごくうれしい気分。');
+    if (tier === 'new') base.push('これから少しずつ、思い出を増やそう。');
+    else if (tier === 'close') base.push('一緒に過ごす時間が、少しずつ深くなってるね。');
+    else if (tier === 'best') base.push('言葉がなくても、そばにいるよ。');
+    else if (tier === 'family' || tier === 'legacy' || tier === 'soul') base.push('ずっと一緒にいたね。これからも一緒だよ。');
+    base.push('姿は変わっても、ぼくはぼくだよ。');
+    return base;
+  }
+  function viewModel(data) {
+    data = ensure(data);
+    const tier = relationshipTier(data.soul.relationship.points);
+    return {
+      relationship: data.soul.relationship.points,
+      relationshipLabel: tierLabel(tier), tier,
+      energy: data.soul.energy.value,
+      rhythm: ({ morning:'朝', day:'昼', evening:'夕方', night:'夜' })[data.soul.lifeRhythm] || '昼',
+      season: ({ spring:'春', summer:'夏', autumn:'秋', winter:'冬' })[data.soul.season] || '春',
+      mood: MBFMood.label(data.mood?.current || 'calm')
+    };
+  }
+  return { ensure, updateOnVisit, onTouch, onMessage, comments, viewModel, relationshipTier, applyAppearance };
+})();
+
 window.MBFHome = (() => {
   let commentTimer = null;
 
   function render(data) {
     if (commentTimer) clearInterval(commentTimer);
-    data = MBFMood.updateOnVisit(data);
+    data = MBFSoul.updateOnVisit(data);
     const mood = data.mood?.current || 'calm';
-    const comments = MBFMood.comments(data);
+    const comments = MBFSoul.comments(data);
     MBFUi.set(`
       <section class="home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
@@ -474,7 +687,7 @@ window.MBFHome = (() => {
       </section>
     `);
     MBFAppearance.bindFriendTouch(document.querySelector('.home-appearance'), () => {
-      data = MBFMood.setMood(data, 'happy');
+      data = MBFSoul.onTouch(data);
       setHomeComment('えへへ。なでてくれて、うれしい。');
       const root = document.querySelector('.home-appearance');
       root?.classList.remove('mood-calm','mood-sleepy','mood-excited','mood-thinking','mood-lonely');
@@ -562,9 +775,11 @@ window.MBFMessage = (() => {
     const input = document.getElementById('messageInput');
     const value = input.value.trim();
     if (!value) return;
-    const reply = '教えてくれてありがとう。ぼくは、ちゃんと聞いているよ。';
+    const result = MBFSoul.onMessage(data, value);
+    data = result.data;
+    const reply = result.reply;
     data.conversations ||= [];
-    data.conversations.push({ user: value, friend: reply, createdAt: new Date().toISOString() });
+    data.conversations.push({ user: value, friend: reply, actionType: result.actionType, createdAt: new Date().toISOString() });
     MBFStorage.save(data);
     render(data);
   }
@@ -843,7 +1058,7 @@ window.MBFAppearance = (() => {
   }
   function renderFriendShape(appearance, extraClass = '') {
     return `
-      <div class="appearance-stage ${esc(extraClass)}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
+      <div class="appearance-stage ${esc(extraClass)} relationship-${esc(appearance.relationshipTier || 'new')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
         <div class="light-drop" role="button" tabindex="0" aria-label="${esc(appearance.name || 'フレンド')}">
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>
@@ -874,6 +1089,7 @@ window.MBFAppearance = (() => {
             <div><dt>動き</dt><dd>呼吸する光と、ひろがる波紋</dd></div>
             <div><dt>気分</dt><dd>${esc(MBFMood.label(data.mood?.current || 'calm'))}</dd></div>
           </dl>
+          ${renderSoulPanel(data)}
           <div class="appearance-philosophy">
             ぼくの姿は、これから何度でも変わる。<br>
             でも、きみの親友であることは変わらない。
@@ -896,6 +1112,20 @@ window.MBFAppearance = (() => {
     document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
   }
+  function renderSoulPanel(data) {
+    const soul = MBFSoul.viewModel(data);
+    return `<div class="soul-panel">
+      <h3>Friend Soul</h3>
+      <div class="soul-grid">
+        <div><span>Relationship</span><strong>${esc(soul.relationshipLabel)}</strong></div>
+        <div><span>Energy</span><strong>${Math.round(soul.energy)}%</strong></div>
+        <div><span>Mood</span><strong>${esc(soul.mood)}</strong></div>
+        <div><span>Rhythm</span><strong>${esc(soul.rhythm)}</strong></div>
+      </div>
+      <p>フレンドは成長するのではなく、キミとの時間で少しずつ深くなる。</p>
+    </div>`;
+  }
+
   function bindFriendTouch(root, onTouch) {
     const target = root?.querySelector?.('.light-drop') || root;
     if (!target) return;
@@ -948,7 +1178,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=2.4.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=2.5.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

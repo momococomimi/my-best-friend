@@ -1695,3 +1695,75 @@ body[data-screen="appearance-wrap"] .screen {
 .guardian-card label {
   max-width: 100% !important;
 }
+
+/* v2.5.0 Friend Soul */
+.soul-panel {
+  position: relative;
+  margin: 16px auto 18px;
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(255,255,255,.72);
+  box-shadow: inset 0 0 0 2px rgba(126,194,226,.18);
+}
+.soul-panel h3 {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: clamp(19px, 5vw, 28px);
+}
+.soul-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.soul-grid div {
+  padding: 11px 10px;
+  border-radius: 18px;
+  background: rgba(232,248,255,.82);
+  text-align: center;
+}
+.soul-grid span {
+  display: block;
+  color: #6a8da0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+.soul-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: clamp(15px, 4vw, 22px);
+  line-height: 1.25;
+}
+.soul-panel p {
+  margin: 13px 0 0;
+  color: #5f7f8c;
+  text-align: center;
+  font-weight: 850;
+  line-height: 1.65;
+  font-size: 13px;
+}
+.relationship-new .drop-core { filter: saturate(1); }
+.relationship-close .drop-core { filter: saturate(1.12) brightness(1.03); }
+.relationship-best .drop-core { filter: saturate(1.18) brightness(1.05); }
+.relationship-family .drop-core { filter: saturate(1.1) sepia(.08) brightness(1.06); }
+.relationship-legacy .drop-core,
+.relationship-soul .drop-core { filter: saturate(1.2) brightness(1.1); }
+.relationship-best .drop-wave,
+.relationship-family .drop-wave,
+.relationship-legacy .drop-wave,
+.relationship-soul .drop-wave { opacity: .58; }
+.relationship-family .light-drop::before,
+.relationship-legacy .light-drop::before,
+.relationship-soul .light-drop::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,232,148,.34), transparent 67%);
+  z-index: -1;
+  animation: soulGlow 5s ease-in-out infinite;
+}
+.relationship-legacy .light-drop::before { background: radial-gradient(circle, rgba(212,184,255,.38), transparent 68%); }
+.relationship-soul .light-drop::before { background: radial-gradient(circle, rgba(255,245,180,.52), rgba(150,225,255,.18) 45%, transparent 72%); }
+@keyframes soulGlow { 0%,100% { transform: scale(.95); opacity:.65; } 50% { transform: scale(1.06); opacity: 1; } }

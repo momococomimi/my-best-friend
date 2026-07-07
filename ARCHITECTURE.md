@@ -1,43 +1,29 @@
-# Architecture — v2.3.3 Flow & Space Fix
+# Architecture — v2.5.0 Friend Soul
 
-## Core entities
-- Friend: identity, values, appearance, voice, message, memories
-- User Profile: name, preferred name, birthday, optional gender
-- Guardian: 見守り設定; future transferable stewardship
-- Memory: private shared history
-- Conversation: local lightweight records of message exchange
+## Friend Soul
 
-## Voice
-v2.3.3 introduces the Voice screen as a foundation. Real speech recognition and synthesis will be added later after safety and privacy design.
+Friend Soul is composed of:
 
-## Message
-v2.3.3 introduces the first Message screen. Messages are stored locally in browser localStorage only and are not sent externally.
+- Relationship: shared time and history. It never decreases.
+- Mood: current feeling. It changes naturally.
+- Energy: effort capacity. Tasks reduce it; warm conversation restores it.
+- Life Rhythm: local time rhythm. Morning, day, evening, night.
+- Season: local seasonal feeling.
 
-## Appearance sync
-Opening, Home, Appearance, Voice, and Message use the same Friend appearance component so the Friend feels like the same presence across screens.
+## Appearance Formula
 
-## Future compatibility
-The Friend’s body is still separate from identity. The same Friend can later inhabit light, fluid, animal, robot, or physical forms without losing memories.
+Appearance = Mood × Energy × Relationship × Life Rhythm × Season
 
+Appearance is not manual dress-up. It is the Friend's current inner state appearing outside.
 
-## v2.3.3 Flow & Space Fix
-- Home buttons are equal-sized compact cells.
-- Friend comments fade in place instead of sliding.
-- Friend touch changes facial expression temporarily.
-- Home layout is biased toward a single iPhone viewport without scrolling.
+## Relationship
 
+Relationship is not affection points or a game score. It is the depth of shared life. It never decreases, even if the user is away for a long time.
 
-## v2.4.0 Care & Mood
+## Energy
 
-- Mood is stored as part of Friend state.
-- Appearance changes automatically based on Mood.
-- Care actions can gently change Mood without using points, levels, or rewards.
-- The Friend remains the same identity even when color, light, or animation changes.
+Energy represents the Friend's effort capacity. Research, planning, study, and tasks reduce Energy. Casual conversation and warm words restore Energy.
 
+## Future
 
-## v2.4.3
-Guardian Room supports user name editing instead of a separate preferred calling name. Setup screens and Home share a centered Friend layout. Guardian Room is scrollable on iPhone Safari.
-
-## v2.4.3
-
-Guardian Roomのdate inputだけがiPhone Safariで横幅を超える問題に対して、`min-width: 0` と `appearance: none` を含む専用CSSを追加。
+Environment, weather, Voice, Memory recall, and AI conversation will feed into the same Friend Soul architecture.

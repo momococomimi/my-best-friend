@@ -1,4 +1,4 @@
-# Architecture — v2.5.1 Friend Soul Scroll Fix
+# Architecture — v2.5.2 Friend Soul Scroll Fix
 
 ## Friend Soul Scroll Fix
 

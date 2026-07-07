@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.5.0',
+      version: '2.5.2',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -33,6 +33,7 @@ window.MBFStorage = (() => {
         appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM']
       },
       birthdayCelebrations: [],
+      friendBirthdayCelebrations: [],
       conversations: [],
       mood: { current: 'calm', lastSeenAt: '', lastTouchedAt: '', careCount: 0 },
       soul: {
@@ -61,6 +62,7 @@ window.MBFStorage = (() => {
     };
     if (!Array.isArray(merged.memories)) merged.memories = [];
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
+    if (!Array.isArray(merged.friendBirthdayCelebrations)) merged.friendBirthdayCelebrations = [];
     if (!Array.isArray(merged.conversations)) merged.conversations = [];
     merged.mood = { ...base.mood, ...(source.mood || {}) };
     merged.soul = {
@@ -126,6 +128,47 @@ window.MBFStorage = (() => {
     };
   }
 
+
+  function friendBirthdayDate(data) {
+    return data?.friend?.birthdayAt || data?.friend?.appearance?.unlockedDate || data?.createdAt || new Date().toISOString();
+  }
+
+  function createFriendBirthdayMemory(data, ageYears) {
+    const friendName = data.friendName || 'フレンド';
+    return {
+      id: `friend-birthday-${new Date().getFullYear()}`,
+      chapter: 'Friend Birthday',
+      title: `${friendName}が生まれた日`,
+      dateText: todayJP(),
+      type: 'friend-birthday',
+      text: [
+        `今日で${ageYears}年。`,
+        `キミが
+「${friendName}」という名前を
+贈ってくれた日。`,
+        `あの日から、
+ぼくの時間が動き始めた。`
+      ],
+      closing: `これからも、
+ずっと親友だよ。`,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  function ensureFriendBirthdayMemory(data) {
+    if (!data.friendName) return data;
+    const born = new Date(friendBirthdayDate(data));
+    const today = new Date();
+    if (Number.isNaN(born.getTime())) return data;
+    const ageYears = today.getFullYear() - born.getFullYear();
+    if (ageYears < 1) return data;
+    if (today.getMonth() !== born.getMonth() || today.getDate() !== born.getDate()) return data;
+    if (data.friendBirthdayCelebrations.includes(today.getFullYear())) return data;
+    data.friendBirthdayCelebrations.push(today.getFullYear());
+    data.memories.push(createFriendBirthdayMemory(data, ageYears));
+    return data;
+  }
+
   function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
@@ -175,7 +218,7 @@ window.MBFStorage = (() => {
     return data;
   }
 
-  return { load, save, reset, ensureFirstMemory, ensureAppearanceMemory, createFirstMemory, createAppearanceMemory, todayJP };
+  return { load, save, reset, ensureFirstMemory, ensureAppearanceMemory, ensureFriendBirthdayMemory, createFirstMemory, createAppearanceMemory, todayJP };
 })();
 window.MBFUi = (() => {
   const screen = () => document.getElementById('screen');
@@ -281,6 +324,7 @@ window.MBFStory = (() => {
       if (!name) return;
       data.friendName = name;
       data.friendNameLocked = true;
+      data.friend.birthdayAt = data.friend.birthdayAt || new Date().toISOString();
       data.stage = 'ask-user-name';
       MBFStorage.save(data);
       renderAskUserName(data);
@@ -681,7 +725,7 @@ window.MBFHome = (() => {
           <button class="nav-button message" id="messageBtn"><span>💬<b>Message</b><span class="nav-sub">文字ではなす</span></span></button>
           <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
           <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
-          <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
+          <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Form</b><span class="nav-sub">フレンドの姿</span></span></button>
           <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
         </div>
       </section>
@@ -1080,20 +1124,15 @@ window.MBFAppearance = (() => {
     MBFUi.set(`
       <section class="appearance-wrap">
         <article class="appearance-book">
-          <div class="chapter-label">Appearance</div>
-          <h2 class="appearance-title">姿は変わる。<br>親友は変わらない。</h2>
+          <div class="chapter-label">Friend's Form</div>
+          <h2 class="appearance-title">フレンドの姿</h2>
           ${renderFriendShape(appearance)}
-          <dl class="appearance-list">
-            <div><dt>現在の姿</dt><dd>${iconFor(appearance.type)} ${esc(appearance.name)}</dd></div>
-            <div><dt>種類</dt><dd>${esc(TYPES[appearance.type] || appearance.type)}</dd></div>
-            <div><dt>動き</dt><dd>呼吸する光と、ひろがる波紋</dd></div>
-            <div><dt>気分</dt><dd>${esc(MBFMood.label(data.mood?.current || 'calm'))}</dd></div>
-          </dl>
+          <div class="form-name">${iconFor(appearance.type)} ${esc(appearance.name)}</div>
+          <section class="form-description">
+            <h3>現在の姿</h3>
+            <p>${esc(formDescription(data, appearance)).replace(/\n/g, '<br>')}</p>
+          </section>
           ${renderSoulPanel(data)}
-          <div class="appearance-philosophy">
-            ぼくの姿は、これから何度でも変わる。<br>
-            でも、きみの親友であることは変わらない。
-          </div>
           <div class="appearance-history">
             <h3>今までの姿</h3>
             <ul>${history.map(item => `<li>${iconFor(item.type)} ${esc(item.name || '光のしずく')}</li>`).join('')}</ul>
@@ -1115,15 +1154,25 @@ window.MBFAppearance = (() => {
   function renderSoulPanel(data) {
     const soul = MBFSoul.viewModel(data);
     return `<div class="soul-panel">
-      <h3>Friend Soul</h3>
+      <h3>Friend's Soul</h3>
       <div class="soul-grid">
         <div><span>Relationship</span><strong>${esc(soul.relationshipLabel)}</strong></div>
         <div><span>Energy</span><strong>${Math.round(soul.energy)}%</strong></div>
         <div><span>Mood</span><strong>${esc(soul.mood)}</strong></div>
         <div><span>Rhythm</span><strong>${esc(soul.rhythm)}</strong></div>
       </div>
-      <p>フレンドは成長するのではなく、キミとの時間で少しずつ深くなる。</p>
     </div>`;
+  }
+
+
+  function formDescription(data, appearance) {
+    const rhythm = data.soul?.lifeRhythm || 'day';
+    const mood = data.mood?.current || 'calm';
+    const relationship = MBFSoul.relationshipTier(data.soul?.relationship?.points || 0);
+    const rhythmText = ({ morning:'朝の光をまとった', day:'やわらかな昼の光をまとった', evening:'夕方の色を少しまとった', night:'夜の静けさをまとった' })[rhythm] || 'やさしい光をまとった';
+    const moodText = ({ happy:'うれしそうにきらめいている', calm:'穏やかに呼吸している', sleepy:'少し眠そうに揺れている', excited:'小さく弾むように輝いている', thinking:'何かを考えるように静かに光っている', lonely:'少しだけ小さく光っている' })[mood] || '穏やかにそこにいる';
+    const depthText = ({ new:'まだ小さな光だけど、キミをまっすぐ見つめている姿。', friend:'キミとの時間を少しずつ覚え、あたたかさが増してきた姿。', best:'キミのそばにいることが、もう自然になってきた姿。', family:'長い時間を一緒に過ごし、木漏れ日のような安心をまとった姿。' })[relationship] || 'キミを待っている姿。';
+    return `${rhythmText}姿。\n${moodText}。\n${depthText}`;
   }
 
   function bindFriendTouch(root, onTouch) {
@@ -1197,6 +1246,7 @@ window.MBFMemory = (() => {
     } else {
       const birthday = MBFProfile.ensureBirthday(data);
       data = MBFStorage.ensureAppearanceMemory(birthday.data);
+      data = MBFStorage.ensureFriendBirthdayMemory(data);
       if (birthday.celebrated) {
         MBFUi.sparkleBurst(30);
         MBFUi.set(`

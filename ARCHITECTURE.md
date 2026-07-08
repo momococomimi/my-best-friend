@@ -38,3 +38,12 @@ Friend's Form
 - Friend's Form の説明文をフォームごとに自然に変化する文章へ調整。
 - Safariのフルページスクリーンショットで黒い楕円が出ないよう、強いぼかしエフェクトを削除。
 - Relationshipのレベル表示は行わず、ゲーム感を避ける。
+
+
+## v2.9.0 Living Friend
+
+- 時間帯で背景の空気が変化
+- Friend's Formに「どうして今この姿なの？」を追加
+- Safariフルページスクショで崩れにくい安全なオーラへ調整
+- Guardianの戻るボタンを他画面と同じボタンUIに統一
+- 将来の天気・PWA・小窓表示に備えたLiving Friend設計を継続

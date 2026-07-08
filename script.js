@@ -243,13 +243,29 @@ window.MBFStorage = (() => {
 window.MBFUi = (() => {
   const screen = () => document.getElementById('screen');
 
+  function currentRhythmId() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 10) return 'morning';
+    if (hour >= 10 && hour < 17) return 'day';
+    if (hour >= 17 && hour < 20) return 'evening';
+    return 'night';
+  }
+
+  function setLivingBackground() {
+    document.body.dataset.rhythm = currentRhythmId();
+  }
+
   function set(html) {
     const target = screen();
+    setLivingBackground();
     target.innerHTML = html;
     const match = html.match(/<section class="([^"]+)/);
     document.body.dataset.screen = match ? match[1].split(' ')[0] : '';
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
+
+  setLivingBackground();
+  setInterval(setLivingBackground, 60000);
 
   function friendFace(extraClass = '') {
     return `
@@ -1164,10 +1180,10 @@ window.MBFGuardian = (() => {
           <input id="confirmGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
           <p class="form-error" id="guardianError"></p>
           <button id="saveGuardianPass" class="primary-button">パスワードを保存</button>
-          <button id="guardianCancel" class="text-button">戻る</button>
+          <button id="guardianCancel" class="secondary-button guardian-back-button">ホームへ戻る</button>
         </div>
       </section>`);
-    document.getElementById('guardianCancel').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('guardianCancel').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('saveGuardianPass').addEventListener('click', async () => {
       const a=document.getElementById('newGuardianPass').value;
       const b=document.getElementById('confirmGuardianPass').value;
@@ -1186,9 +1202,9 @@ window.MBFGuardian = (() => {
         <input id="guardianPass" class="guardian-input" type="password" autocomplete="current-password" />
         <p class="form-error" id="guardianError"></p>
         <button id="guardianLogin" class="primary-button">入る</button>
-        <button id="guardianCancel" class="text-button">戻る</button>
+        <button id="guardianCancel" class="secondary-button guardian-back-button">ホームへ戻る</button>
       </div></section>`);
-    document.getElementById('guardianCancel').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('guardianCancel').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('guardianLogin').addEventListener('click', async () => {
       const ok=(await hash(document.getElementById('guardianPass').value))===data.guardian.passwordHash;
       if (!ok) { document.getElementById('guardianError').textContent='パスワードが違います。'; return; }
@@ -1211,7 +1227,7 @@ window.MBFGuardian = (() => {
           <button id="saveGuardianProfile" class="primary-button">保存</button>
         </div>
         <div class="future-panel"><strong>Legacy / Guardian継承 / Appearance</strong><br><span>未来の更新で、この場所から大切に受け継ぎます。</span></div>
-        <button id="guardianDone" class="secondary-button">Profileへ戻る</button>
+        <button id="guardianDone" class="secondary-button guardian-back-button">ホームへ戻る</button>
       </div></section>`);
     document.getElementById('editGender').value=data.profile.gender || 'secret';
     document.getElementById('saveGuardianProfile').addEventListener('click', () => {
@@ -1231,7 +1247,7 @@ window.MBFGuardian = (() => {
       }
       MBFStorage.save(data); MBFUi.sparkleBurst(10);
     });
-    document.getElementById('guardianDone').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('guardianDone').addEventListener('click', () => MBFHome.render(data));
   }
   return { open };
 })();
@@ -1319,6 +1335,10 @@ window.MBFAppearance = (() => {
           <section class="form-description">
             <h3>現在の姿</h3>
             <p>${esc(formDescription(data, appearance)).replace(/\n/g, '<br>')}</p>
+          </section>
+          <section class="form-reason">
+            <h3>どうして今この姿なの？</h3>
+            <p>${esc(formReason(data, appearance))}</p>
           </section>
           ${renderIdentityPanel(data)}
           ${renderSoulPanel(data)}
@@ -1421,6 +1441,28 @@ window.MBFAppearance = (() => {
 ${rhythmLine}
 ${moodLine}
 ${depthLine}`;
+  }
+
+
+  function formReason(data, appearance) {
+    const rhythm = data.soul?.lifeRhythm || 'day';
+    const mood = data.mood?.current || 'calm';
+    const personality = window.MBFIdentity ? MBFIdentity.label(data) : 'やさしい';
+    const rhythmReason = {
+      morning: '朝の光に合わせて、少し明るい姿になっているよ。',
+      day: '昼の空気を感じて、やわらかく光っているよ。',
+      evening: '夕方になってきたから、少し落ち着いた色をまとっているよ。',
+      night: '夜の静けさに合わせて、ゆっくりした姿でいるよ。'
+    }[rhythm] || '今日の空気に合わせて、今の姿になっているよ。';
+    const moodReason = {
+      happy: 'キミに会えてうれしい気持ちが、表情に少し出ているみたい。',
+      calm: '落ち着いた気持ちで、静かにキミのそばにいるよ。',
+      sleepy: '少し眠そうだから、光もゆっくり呼吸しているよ。',
+      excited: '少しわくわくしていて、光が小さく弾んでいるよ。',
+      thinking: '考えごとをしているから、やさしい波紋をまとっているよ。',
+      lonely: '少し静かに、また会える時間を待っていたよ。'
+    }[mood] || '今の気持ちが、姿に少しにじんでいるよ。';
+    return `${rhythmReason} ${moodReason}`;
   }
 
   function bindFriendTouch(root, onTouch) {

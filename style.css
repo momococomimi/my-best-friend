@@ -2151,3 +2151,91 @@ body[data-screen="guardian-wrap"] .guardian-room #saveGuardianProfile {
   body[data-screen="guardian-wrap"] .guardian-card .secondary-button,
   body[data-screen="guardian-wrap"] .guardian-card .guardian-back-button { min-height: 46px !important; padding: 9px 12px !important; margin-top: 11px !important; }
 }
+
+/* v3.0.0 Living Friend: time-of-day world and quiet idle life */
+body[data-rhythm="morning"] {
+  --sky-top: #8fe3ff;
+  --sky-mid: #d9f5ee;
+  --sky-bottom: #fff1c8;
+}
+body[data-rhythm="day"] {
+  --sky-top: #80d9ff;
+  --sky-mid: #c7f1f4;
+  --sky-bottom: #fff5c9;
+}
+body[data-rhythm="evening"] {
+  --sky-top: #9ec8ff;
+  --sky-mid: #ffd8be;
+  --sky-bottom: #fff0c8;
+}
+body[data-rhythm="night"] {
+  --sky-top: #88aee6;
+  --sky-mid: #c5d7ef;
+  --sky-bottom: #fff4cf;
+}
+body[data-rhythm="night"] .sun-glow {
+  right: -80px;
+  top: 34px;
+  opacity: .55;
+  background: radial-gradient(circle, rgba(255,255,255,.9), rgba(210,226,255,.32) 38%, transparent 68%);
+}
+body[data-rhythm="evening"] .sun-glow {
+  background: radial-gradient(circle, rgba(255,244,212,.95), rgba(255,180,126,.32) 38%, transparent 70%);
+}
+body[data-rhythm="morning"] .sun-glow {
+  background: radial-gradient(circle, rgba(255,255,238,.98), rgba(255,224,150,.35) 36%, transparent 70%);
+}
+body[data-rhythm="night"] .cloud { opacity: .42; }
+body[data-rhythm="evening"] .cloud { opacity: .64; }
+
+/* Keep the aura lightweight for Safari full-page screenshots. */
+.appearance-stage::before {
+  background: radial-gradient(circle, rgba(126,211,255,.13) 0%, rgba(126,211,255,.07) 46%, rgba(255,255,255,0) 76%) !important;
+  border-color: rgba(126, 211, 255, .14) !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+.light-drop,
+.appearance-stage .light-drop {
+  background:
+    radial-gradient(circle at 34% 25%, rgba(255,255,255,.98) 0 11%, rgba(255,255,255,.58) 18%, transparent 34%),
+    radial-gradient(circle at 52% 56%, color-mix(in srgb, var(--appearance-color, #78d3ff) 78%, white), var(--appearance-color, #78d3ff) 62%, #74c8f3 100%) !important;
+  filter: none;
+  mix-blend-mode: normal;
+}
+
+.home-appearance.living-breathe .light-drop {
+  animation-duration: 6.6s !important;
+}
+.light-drop.living-look-sky {
+  animation: livingLook 5.2s ease-in-out both, liquidBreathe 5.8s ease-in-out infinite !important;
+}
+.light-drop.living-sprout .drop-sprout {
+  animation: sproutSway 1.7s ease-in-out infinite !important;
+  filter: drop-shadow(0 5px 10px rgba(55, 134, 72, .22));
+}
+.light-drop.living-quiet {
+  animation: livingQuiet 5.2s ease-in-out both, liquidBreathe 7.4s ease-in-out infinite !important;
+}
+.light-drop.living-blink .drop-eye {
+  animation: livingBlink 1.8s ease-in-out 2 !important;
+}
+@keyframes livingLook {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-7px) rotate(-1.2deg); }
+  70% { transform: translateY(-3px) rotate(.8deg); }
+}
+@keyframes livingQuiet {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(.985); opacity: .94; }
+}
+@keyframes livingBlink {
+  0%, 65%, 100% { transform: scaleY(1); }
+  72%, 84% { transform: scaleY(.12); }
+}
+
+/* Tiny motion details: the friend feels present even when untouched. */
+.home-scene .drop-wave.wave-one { animation-duration: 4.8s; }
+.home-scene .drop-wave.wave-two { animation-duration: 5.8s; }
+body[data-rhythm="night"] .home-scene .drop-eye { animation-duration: 7.4s; }
+body[data-rhythm="morning"] .home-scene .drop-eye { animation-duration: 4.2s; }

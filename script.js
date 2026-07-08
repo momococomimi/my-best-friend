@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.8.0',
+      version: '3.0.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -53,7 +53,8 @@ window.MBFStorage = (() => {
         lifeRhythm: 'day',
         season: 'spring',
         lastAction: 'birth'
-      }
+      },
+      living: { lastOpenedAt: '', lastClosedAt: '', idleState: 'awake', lastIdleAt: '' }
     };
   }
 
@@ -82,6 +83,7 @@ window.MBFStorage = (() => {
       relationship: { ...base.soul.relationship, ...((source.soul || {}).relationship || {}) },
       energy: { ...base.soul.energy, ...((source.soul || {}).energy || {}) }
     };
+    merged.living = { ...base.living, ...(source.living || {}) };
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
     merged.friend.identity = { ...base.friend.identity, ...(merged.friend.identity || {}) };
     if (!Array.isArray(merged.friend.identity.core)) merged.friend.identity.core = base.friend.identity.core;
@@ -256,6 +258,7 @@ window.MBFUi = (() => {
   }
 
   function set(html) {
+    if (window.MBFLiving) window.MBFLiving.stop();
     const target = screen();
     setLivingBackground();
     target.innerHTML = html;
@@ -909,14 +912,106 @@ window.MBFSoul = (() => {
   return { ensure, updateOnVisit, onTouch, onMessage, comments, viewModel, relationshipTier, applyAppearance };
 })();
 
+
+window.MBFLiving = (() => {
+  let idleTimer = null;
+  let driftTimer = null;
+  let currentData = null;
+
+  const idleStates = [
+    { id: 'look-sky', className: 'living-look-sky', comment: '雲を見ていたよ。' },
+    { id: 'sprout', className: 'living-sprout', comment: '芽が少し揺れているね。' },
+    { id: 'quiet', className: 'living-quiet', comment: '少し静かにしているね。' },
+    { id: 'blink', className: 'living-blink', comment: 'ここにいるよ。' }
+  ];
+
+  function stop() {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (driftTimer) clearInterval(driftTimer);
+    idleTimer = null;
+    driftTimer = null;
+  }
+
+  function minutesAway(data) {
+    const iso = data?.living?.lastClosedAt || data?.living?.lastOpenedAt || data?.mood?.lastSeenAt;
+    if (!iso) return 0;
+    const t = new Date(iso).getTime();
+    if (Number.isNaN(t)) return 0;
+    return Math.max(0, Math.floor((Date.now() - t) / 60000));
+  }
+
+  function greeting(data) {
+    const away = minutesAway(data);
+    if (away >= 180) return '少し眠っていたよ。会えてうれしい。';
+    if (away >= 45) return '雲を見ながら、待っていたよ。';
+    if (away >= 10) return '少し空を眺めていたよ。';
+    return '';
+  }
+
+  function markOpen(data) {
+    data.living ||= {};
+    data.living.lastOpenedAt = new Date().toISOString();
+    data.living.idleState = 'awake';
+    return data;
+  }
+
+  function markClose(data) {
+    try {
+      data.living ||= {};
+      data.living.lastClosedAt = new Date().toISOString();
+      MBFStorage.save(data);
+    } catch (_) {}
+  }
+
+  function start(root, setComment, data) {
+    stop();
+    currentData = data;
+    const stage = root?.querySelector?.('.light-drop');
+    if (!stage) return;
+
+    const schedule = () => {
+      idleTimer = setTimeout(() => {
+        const state = idleStates[Math.floor(Math.random() * idleStates.length)];
+        stage.classList.remove(...idleStates.map(s => s.className));
+        stage.classList.add(state.className);
+        if (typeof setComment === 'function') setComment(state.comment);
+        data.living ||= {};
+        data.living.idleState = state.id;
+        data.living.lastIdleAt = new Date().toISOString();
+        MBFStorage.save(data);
+        setTimeout(() => stage.classList.remove(state.className), 5200);
+        schedule();
+      }, 22000 + Math.random() * 18000);
+    };
+
+    driftTimer = setInterval(() => {
+      root.classList.toggle('living-breathe');
+    }, 12000);
+
+    schedule();
+  }
+
+  if (!window.__mbfLivingCloseBound) {
+    window.__mbfLivingCloseBound = true;
+    window.addEventListener('pagehide', () => { if (currentData) markClose(currentData); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && currentData) markClose(currentData); });
+  }
+
+  return { start, stop, greeting, markOpen, markClose };
+})();
+
 window.MBFHome = (() => {
   let commentTimer = null;
 
   function render(data) {
     if (commentTimer) clearInterval(commentTimer);
     data = MBFSoul.updateOnVisit(data);
+    const livingGreeting = window.MBFLiving ? MBFLiving.greeting(data) : '';
+    if (window.MBFLiving) data = MBFLiving.markOpen(data);
+    MBFStorage.save(data);
     const mood = data.mood?.current || 'calm';
     const comments = MBFSoul.comments(data);
+    if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
       <section class="home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
@@ -941,6 +1036,7 @@ window.MBFHome = (() => {
       root?.classList.add('mood-happy');
     });
     startComments(comments);
+    if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
@@ -1504,7 +1600,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=2.8.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=3.0.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

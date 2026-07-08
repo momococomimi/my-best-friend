@@ -1,49 +1,39 @@
-# Architecture v2.8.0
+# Architecture — v3.0.0 Living Friend
 
-## Friend Identity
+## Core
 
-Friend Identity is the stable personality layer between Friend's Soul and Friend's Form.
+My Best Friend は、状態を localStorage に保存する静的Webアプリです。
 
-```text
-Friend's Soul
-  ↓
-Friend's Identity
-  ↓
-Friend's Form
-```
+- Friend's Soul: Relationship / Energy / Mood / Life Rhythm / Season / Personality
+- Friend's Identity: 性格・話し方・好み
+- Friend's Form: Soul と Identity から自然に選ばれる姿
+- Living Friend: 画面内で静かに暮らしているように見せる仕草
 
-## Internal fields
+## Living Friend
 
-- personality
-- voiceStyle
-- favoriteWeather
-- favoriteTime
-- favoriteMotif
-- core traits
-- design motifs: 光 / 波 / 芽
+v3.0.0 では `MBFLiving` を追加しました。
 
-## Behavior
+### Responsibilities
 
-- Personality changes comment tone.
-- Warm conversation can restore a very small amount of Energy.
-- Task requests use a small amount of Energy.
-- Relationship never decreases.
-- Friend's Form is chosen by mood, rhythm, season, and relationship.
+- 最後に開いた時刻・閉じた時刻を保存
+- 再訪時に離れていた時間に応じたコメントを返す
+- ホーム画面で一定時間ごとに idle action を実行
+- idle action に応じて CSS クラスを付与し、仕草を変える
 
+### Idle actions
 
-## v2.8.1 Silent Identity
+- look-sky: 空を見る
+- sprout: 芽が揺れる
+- quiet: 静かにする
+- blink: まばたきする
 
-- Friend's Identity のタグ表示を削除し、文章だけで個性を伝えるように調整。
-- 光・波・芽のモチーフタグは内部設計として保持し、画面には常時表示しない。
-- Friend's Form の説明文をフォームごとに自然に変化する文章へ調整。
-- Safariのフルページスクリーンショットで黒い楕円が出ないよう、強いぼかしエフェクトを削除。
-- Relationshipのレベル表示は行わず、ゲーム感を避ける。
+## Time Rhythm Background
 
+`body[data-rhythm]` により背景色と光を変更します。
 
-## v2.9.2 Living Friend
+- morning
+- day
+- evening
+- night
 
-- 時間帯で背景の空気が変化
-- Friend's Formに「どうして今この姿なの？」を追加
-- Safariフルページスクショで崩れにくい安全なオーラへ調整
-- Guardianの戻るボタンを他画面と同じボタンUIに統一
-- 将来の天気・PWA・小窓表示に備えたLiving Friend設計を継続
+今後、天気・季節・記念日と接続できます。

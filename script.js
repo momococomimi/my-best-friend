@@ -920,9 +920,10 @@ window.MBFLiving = (() => {
 
   const idleStates = [
     { id: 'look-sky', className: 'living-look-sky', comment: '雲を見ていたよ。' },
-    { id: 'sprout', className: 'living-sprout', comment: '芽が少し揺れているね。' },
+    { id: 'sprout', className: 'living-sprout', comment: '芽を見ていたよ。' },
     { id: 'quiet', className: 'living-quiet', comment: '少し静かにしているね。' },
-    { id: 'blink', className: 'living-blink', comment: 'ここにいるよ。' }
+    { id: 'blink', className: 'living-blink', comment: 'ここにいるよ。' },
+    { id: 'come-close', className: 'living-come-close', comment: '少し近くに来たよ。' }
   ];
 
   function stop() {
@@ -1403,7 +1404,6 @@ window.MBFAppearance = (() => {
     return `
       <div class="appearance-stage ${esc(extraClass)} relationship-${esc(appearance.relationshipTier || 'new')} form-${esc(appearance.id || 'light-drop')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
         <div class="light-drop" role="button" tabindex="0" aria-label="${esc(appearance.name || 'フレンド')}">
-          <span class="form-motif">${esc(appearance.motif || '')}</span>
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>
           <span class="drop-wave wave-two"></span>
@@ -1412,8 +1412,8 @@ window.MBFAppearance = (() => {
           <span class="drop-cheek cheek-left"></span>
           <span class="drop-cheek cheek-right"></span>
           <span class="drop-mouth"></span>
-          <span class="drop-sprout">🌱</span>
         </div>
+        <span class="memory-sprout" aria-hidden="true">🌱</span>
       </div>`;
   }
   function render(data) {

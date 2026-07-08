@@ -1,4 +1,4 @@
-# Architecture — v3.0.0 Living Friend
+# Architecture — v3.1.0 Living Friend
 
 ## Core
 
@@ -11,7 +11,7 @@ My Best Friend は、状態を localStorage に保存する静的Webアプリで
 
 ## Living Friend
 
-v3.0.0 では `MBFLiving` を追加しました。
+v3.1.0 では `MBFLiving` を追加しました。
 
 ### Responsibilities
 

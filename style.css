@@ -2239,3 +2239,122 @@ body[data-rhythm="evening"] .cloud { opacity: .64; }
 .home-scene .drop-wave.wave-two { animation-duration: 5.8s; }
 body[data-rhythm="night"] .home-scene .drop-eye { animation-duration: 7.4s; }
 body[data-rhythm="morning"] .home-scene .drop-eye { animation-duration: 4.2s; }
+
+/* v3.1.0 Living Friend — favorite place, separated memory sprout */
+.form-motif,
+.drop-sprout { display: none !important; }
+
+.appearance-stage {
+  position: relative;
+  overflow: visible !important;
+}
+.memory-sprout {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  transform: translateX(-50%);
+  z-index: 8;
+  font-size: clamp(25px, 6.6vw, 40px);
+  line-height: 1;
+  filter: drop-shadow(0 6px 9px rgba(57, 120, 72, .18));
+  animation: memorySproutSway 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.home-scene .appearance-stage.home-appearance {
+  height: clamp(235px, 43svh, 340px);
+  display: grid;
+  place-items: center;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  width: clamp(190px, 52vw, 285px);
+  height: clamp(190px, 52vw, 285px);
+  margin-bottom: 28px;
+  animation: livingHomeFloat 7.8s ease-in-out infinite !important;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  bottom: 10%;
+  font-size: clamp(28px, 7.2vw, 42px);
+}
+
+.appearance-wrap .appearance-stage .light-drop {
+  margin-bottom: 20px;
+}
+.appearance-wrap .appearance-stage .memory-sprout {
+  bottom: 4%;
+}
+
+/* Natural idle expressions */
+.home-scene .drop-eye,
+.appearance-stage .drop-eye {
+  transform-origin: center;
+  animation: naturalBlink 8.6s ease-in-out infinite;
+}
+.home-scene .drop-mouth { transform-origin: center; }
+.home-appearance.living-breathe .light-drop {
+  animation: livingHomeFloat 7.8s ease-in-out infinite !important;
+}
+.light-drop.living-look-sky {
+  animation: livingLookSky 5.2s ease-in-out both, livingHomeFloat 7.8s ease-in-out infinite !important;
+}
+.light-drop.living-sprout {
+  animation: livingLookDown 5.2s ease-in-out both, livingHomeFloat 7.8s ease-in-out infinite !important;
+}
+.light-drop.living-sprout + .memory-sprout {
+  animation: memorySproutSwayFast 1.9s ease-in-out infinite !important;
+}
+.light-drop.living-quiet {
+  animation: livingQuiet 5.2s ease-in-out both, livingHomeFloat 9.4s ease-in-out infinite !important;
+}
+.light-drop.living-come-close {
+  animation: livingComeClose 4.8s ease-in-out both, livingHomeFloat 7.8s ease-in-out infinite !important;
+}
+.light-drop.living-blink .drop-eye {
+  animation: doubleBlink 1.8s ease-in-out 2 !important;
+}
+
+@keyframes livingHomeFloat {
+  0%,100% { transform: translate3d(0, 0, 0) scale(1); }
+  22% { transform: translate3d(6px, -9px, 0) scale(1.012); }
+  48% { transform: translate3d(-5px, -16px, 0) scale(1.022); }
+  76% { transform: translate3d(4px, -6px, 0) scale(.998); }
+}
+@keyframes memorySproutSway {
+  0%,100% { transform: translateX(-50%) rotate(-3deg); }
+  50% { transform: translateX(-50%) rotate(4deg); }
+}
+@keyframes memorySproutSwayFast {
+  0%,100% { transform: translateX(-50%) rotate(-7deg) scale(1.02); }
+  50% { transform: translateX(-50%) rotate(8deg) scale(1.06); }
+}
+@keyframes naturalBlink {
+  0%, 89%, 94%, 100% { transform: scaleY(1); }
+  91%, 92.5% { transform: scaleY(.12); }
+}
+@keyframes doubleBlink {
+  0%, 34%, 60%, 100% { transform: scaleY(1); }
+  18%, 48% { transform: scaleY(.12); }
+}
+@keyframes livingLookSky {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  38% { transform: translate3d(2px,-18px,0) scale(1.016) rotate(-1deg); }
+  70% { transform: translate3d(0,-10px,0) scale(1.006); }
+}
+@keyframes livingLookDown {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  42% { transform: translate3d(0, 8px,0) scale(.992); }
+  72% { transform: translate3d(-2px, 4px,0) scale(.998); }
+}
+@keyframes livingComeClose {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  40% { transform: translate3d(0, 10px,0) scale(1.045); }
+  72% { transform: translate3d(0, 4px,0) scale(1.018); }
+}
+
+@media (max-width: 430px) {
+  .home-scene .appearance-stage.home-appearance .light-drop {
+    width: clamp(184px, 50vw, 245px);
+    height: clamp(184px, 50vw, 245px);
+  }
+  .home-scene .appearance-stage.home-appearance .memory-sprout { bottom: 9%; }
+}

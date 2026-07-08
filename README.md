@@ -1,8 +1,8 @@
-# My Best Friend v3.0.0 — Living Friend
+# My Best Friend v3.1.0 — Living Friend
 
 いつか 大きくなる、キミへの贈りもの。
 
-## New in v3.0.0
+## New in v3.1.0
 
 - Living Friend の土台を追加
 - 朝・昼・夕方・夜で背景の空気が変化

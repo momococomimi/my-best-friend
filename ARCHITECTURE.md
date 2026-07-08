@@ -40,7 +40,7 @@ Friend's Form
 - Relationshipのレベル表示は行わず、ゲーム感を避ける。
 
 
-## v2.9.1 Living Friend
+## v2.9.2 Living Friend
 
 - 時間帯で背景の空気が変化
 - Friend's Formに「どうして今この姿なの？」を追加

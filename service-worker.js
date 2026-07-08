@@ -1,6 +1,6 @@
-const CACHE_NAME = 'my-best-friend-v2-7-0-slow-energy';
+const CACHE_NAME = 'my-best-friend-v2-9-2-guardian-fit';
 const FILES = [
-  './', './index.html?v=2.8.0', './manifest.json?v=2.8.0', './style.css?v=2.8.0', './script.js?v=2.8.0'
+  './', './index.html?v=2.9.2', './manifest.json?v=2.9.2', './style.css?v=2.9.2', './script.js?v=2.9.2'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES).catch(() => undefined)));
@@ -13,7 +13,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match('./index.html?v=2.8.0').then(r => r || caches.match('./'))));
+    event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match('./index.html?v=2.9.2').then(r => r || caches.match('./'))));
     return;
   }
   event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request)));

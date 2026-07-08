@@ -2033,3 +2033,121 @@ body[data-screen="guardian-wrap"] .guardian-wrap { padding-bottom: max(36px, var
   text-decoration:none;
   font-weight:900;
 }
+
+
+/* v2.9.2 Guardian Fit — compact no-scroll Guardian screens */
+body[data-screen="guardian-wrap"] {
+  overflow: hidden !important;
+}
+body[data-screen="guardian-wrap"] .app-shell {
+  height: 100svh !important;
+  min-height: 100svh !important;
+  overflow: hidden !important;
+  padding: calc(8px + var(--safe-top)) 14px calc(10px + var(--safe-bottom)) !important;
+}
+body[data-screen="guardian-wrap"] .app-header {
+  margin: 0 auto 6px !important;
+}
+body[data-screen="guardian-wrap"] .app-header h1 {
+  font-size: clamp(33px, 8.7vw, 48px) !important;
+  line-height: .96 !important;
+}
+body[data-screen="guardian-wrap"] .app-header p {
+  margin-top: 5px !important;
+  font-size: clamp(10px, 2.75vw, 14px) !important;
+}
+body[data-screen="guardian-wrap"] .screen {
+  height: calc(100svh - 78px - var(--safe-top) - var(--safe-bottom)) !important;
+  overflow: hidden !important;
+}
+body[data-screen="guardian-wrap"] .guardian-wrap {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+body[data-screen="guardian-wrap"] .guardian-card {
+  width: min(92vw, 650px) !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  padding: clamp(16px, 4.2vw, 24px) !important;
+  border-radius: clamp(26px, 7vw, 38px) !important;
+}
+body[data-screen="guardian-wrap"] .guardian-symbol {
+  font-size: clamp(28px, 7vw, 38px) !important;
+  line-height: 1 !important;
+  margin-bottom: 2px !important;
+}
+body[data-screen="guardian-wrap"] .guardian-card h2 {
+  margin: 4px 0 8px !important;
+  font-size: clamp(30px, 8.5vw, 46px) !important;
+  line-height: 1.05 !important;
+}
+body[data-screen="guardian-wrap"] .guardian-card p,
+body[data-screen="guardian-wrap"] .guardian-lead {
+  margin: 0 auto 16px !important;
+  font-size: clamp(14px, 3.8vw, 18px) !important;
+  line-height: 1.55 !important;
+}
+body[data-screen="guardian-wrap"] .guardian-card label {
+  margin: 10px 4px 6px !important;
+  font-size: clamp(15px, 4.1vw, 19px) !important;
+  line-height: 1.25 !important;
+}
+body[data-screen="guardian-wrap"] .guardian-input {
+  min-height: 50px !important;
+  height: 50px !important;
+  padding: 10px 14px !important;
+  border-width: 3px !important;
+  border-radius: 18px !important;
+  font-size: clamp(17px, 4.6vw, 22px) !important;
+}
+body[data-screen="guardian-wrap"] .guardian-card .primary-button,
+body[data-screen="guardian-wrap"] .guardian-card .secondary-button,
+body[data-screen="guardian-wrap"] .guardian-card .guardian-back-button {
+  min-height: 50px !important;
+  padding: 11px 14px !important;
+  margin-top: 13px !important;
+  border-radius: 22px !important;
+  font-size: clamp(18px, 5vw, 24px) !important;
+  line-height: 1.2 !important;
+}
+body[data-screen="guardian-wrap"] .form-error {
+  min-height: 18px !important;
+  margin: 6px 0 0 !important;
+  font-size: 13px !important;
+}
+body[data-screen="guardian-wrap"] .guardian-room {
+  text-align: left !important;
+}
+body[data-screen="guardian-wrap"] .guardian-room .guardian-section {
+  margin: 12px 0 !important;
+  padding: 12px !important;
+  border-radius: 20px !important;
+}
+body[data-screen="guardian-wrap"] .guardian-room .guardian-section h3 {
+  margin: 0 0 6px !important;
+  font-size: clamp(18px, 5vw, 24px) !important;
+}
+body[data-screen="guardian-wrap"] .guardian-room .future-panel {
+  display: none !important;
+}
+body[data-screen="guardian-wrap"] .guardian-room #saveGuardianProfile {
+  margin-top: 12px !important;
+}
+@media (max-height: 700px) {
+  body[data-screen="guardian-wrap"] .app-header h1 { font-size: 30px !important; }
+  body[data-screen="guardian-wrap"] .app-header p { font-size: 10px !important; }
+  body[data-screen="guardian-wrap"] .screen { height: calc(100svh - 66px - var(--safe-top) - var(--safe-bottom)) !important; }
+  body[data-screen="guardian-wrap"] .guardian-card { padding: 14px !important; }
+  body[data-screen="guardian-wrap"] .guardian-symbol { font-size: 26px !important; }
+  body[data-screen="guardian-wrap"] .guardian-card h2 { font-size: 28px !important; margin-bottom: 6px !important; }
+  body[data-screen="guardian-wrap"] .guardian-card p,
+  body[data-screen="guardian-wrap"] .guardian-lead { font-size: 13px !important; line-height: 1.45 !important; margin-bottom: 12px !important; }
+  body[data-screen="guardian-wrap"] .guardian-input { min-height: 46px !important; height: 46px !important; }
+  body[data-screen="guardian-wrap"] .guardian-card .primary-button,
+  body[data-screen="guardian-wrap"] .guardian-card .secondary-button,
+  body[data-screen="guardian-wrap"] .guardian-card .guardian-back-button { min-height: 46px !important; padding: 9px 12px !important; margin-top: 11px !important; }
+}

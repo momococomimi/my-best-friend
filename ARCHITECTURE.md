@@ -1,15 +1,31 @@
-# Architecture — v2.7.0 Friend Identity
+# Architecture v2.8.0
 
-## Soul → Identity → Form
+## Friend Identity
 
-- Friend's Soul: Relationship, Mood, Energy, Life Rhythm, Season
-- Friend's Identity: core personality and design motifs that never disappear
-- Friend's Form: the visible appearance selected from the current state
+Friend Identity is the stable personality layer between Friend's Soul and Friend's Form.
 
-## Form Selection
-The user does not dress up the friend. The friend chooses a form from mood, time, season, and relationship.
+```text
+Friend's Soul
+  ↓
+Friend's Identity
+  ↓
+Friend's Form
+```
 
-## Core Motifs
-- Light: unchanging promise
-- Wave: feelings, voice, generations
-- Sprout: Memory and future
+## Internal fields
+
+- personality
+- voiceStyle
+- favoriteWeather
+- favoriteTime
+- favoriteMotif
+- core traits
+- design motifs: 光 / 波 / 芽
+
+## Behavior
+
+- Personality changes comment tone.
+- Warm conversation can restore a very small amount of Energy.
+- Task requests use a small amount of Energy.
+- Relationship never decreases.
+- Friend's Form is chosen by mood, rhythm, season, and relationship.

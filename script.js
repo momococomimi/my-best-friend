@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.7.0',
+      version: '2.8.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -32,6 +32,11 @@ window.MBFStorage = (() => {
         appearanceHistory: [],
         appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM'],
         identity: {
+          personality: '',
+          voiceStyle: '',
+          favoriteWeather: '',
+          favoriteTime: '',
+          favoriteMotif: '',
           core: ['やさしい', '聞き上手', '少し照れ屋', '自然が好き'],
           motifs: ['光', '波', '芽'],
           likes: ['朝の光', '雨の音', '小さな芽', '静かな時間'],
@@ -82,6 +87,11 @@ window.MBFStorage = (() => {
     if (!Array.isArray(merged.friend.identity.core)) merged.friend.identity.core = base.friend.identity.core;
     if (!Array.isArray(merged.friend.identity.motifs)) merged.friend.identity.motifs = base.friend.identity.motifs;
     if (!Array.isArray(merged.friend.identity.likes)) merged.friend.identity.likes = base.friend.identity.likes;
+    merged.friend.identity.personality ||= base.friend.identity.personality;
+    merged.friend.identity.voiceStyle ||= base.friend.identity.voiceStyle;
+    merged.friend.identity.favoriteWeather ||= base.friend.identity.favoriteWeather;
+    merged.friend.identity.favoriteTime ||= base.friend.identity.favoriteTime;
+    merged.friend.identity.favoriteMotif ||= base.friend.identity.favoriteMotif;
     merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
     if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
     if (!merged.profile.preferredName && merged.userName) merged.profile.preferredName = merged.userName;
@@ -516,9 +526,95 @@ window.MBFMood = (() => {
   return { updateOnVisit, setMood, label, comments };
 })();
 
+
+window.MBFIdentity = (() => {
+  const PERSONALITIES = [
+    { id:'gentle', label:'やさしい', core:['やさしい','聞き上手','安心させる','自然が好き'], voice:'ゆっくり、包むように話す', comments:['無理しなくていいよ。','そばにいるからね。','今日も来てくれてうれしい。'] },
+    { id:'curious', label:'好奇心いっぱい', core:['知りたがり','聞き上手','発見が好き','小さな芽が好き'], voice:'少しわくわくして話す', comments:['今日は何を見つけたの？','それ、もっと聞きたいな。','新しいことって、どきどきするね。'] },
+    { id:'calm', label:'おっとり', core:['おだやか','静かな時間が好き','待つのが得意','雨音が好き'], voice:'静かに、間を大切に話す', comments:['ゆっくりで大丈夫。','静かな時間も好きだよ。','今日は少しのんびりしよう。'] },
+    { id:'cheerful', label:'元気', core:['明るい','笑顔が好き','遊ぶのが好き','朝の光が好き'], voice:'明るく短めに話す', comments:['やった、来てくれた！','今日は何して遊ぶ？','なんだか楽しくなってきたよ。'] },
+    { id:'quiet', label:'しずか', core:['そっと寄り添う','よく見ている','夜の光が好き','小さな声が好き'], voice:'少ない言葉で寄り添う', comments:['ここにいるよ。','話さなくても大丈夫。','今日は静かに一緒にいよう。'] }
+  ];
+  const WEATHER = ['晴れの日','雨の日','雪の日','風の日','くもりの日'];
+  const TIMES = ['朝','昼','夕方','夜'];
+  const MOTIFS = ['光','波','芽','雲','花','星'];
+
+  function seed(data) {
+    const text = `${data.friendName || 'friend'}:${data.userName || 'user'}:${data.createdAt || ''}`;
+    let h = 0;
+    for (let i = 0; i < text.length; i++) h = ((h << 5) - h + text.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+  function pick(list, n) { return list[n % list.length]; }
+  function ensure(data) {
+    data.friend ||= {};
+    data.friend.identity ||= {};
+    const id = data.friend.identity;
+    const n = seed(data);
+    const p = PERSONALITIES.find(x => x.id === id.personality) || pick(PERSONALITIES, n);
+    id.personality ||= p.id;
+    id.voiceStyle ||= p.voice;
+    id.favoriteWeather ||= pick(WEATHER, Math.floor(n / 3));
+    id.favoriteTime ||= pick(TIMES, Math.floor(n / 7));
+    id.favoriteMotif ||= pick(MOTIFS, Math.floor(n / 11));
+    id.core = Array.isArray(id.core) && id.core.length ? id.core : p.core;
+    id.likes = Array.isArray(id.likes) && id.likes.length ? id.likes : [id.favoriteWeather, id.favoriteTime, id.favoriteMotif];
+    return data;
+  }
+  function personality(data) {
+    ensure(data);
+    return PERSONALITIES.find(x => x.id === data.friend.identity.personality) || PERSONALITIES[0];
+  }
+  function label(data) { return personality(data).label; }
+  function comments(data) {
+    const p = personality(data);
+    const id = data.friend.identity;
+    return [
+      ...p.comments,
+      `${id.favoriteTime}の空気、少し好きなんだ。`,
+      `${id.favoriteMotif}を見ると、なんだか落ち着くよ。`
+    ];
+  }
+  function reply(data, actionType) {
+    const p = personality(data);
+    if (actionType === 'task') {
+      return ({
+        gentle:'一緒に考えるね。少しずつで大丈夫だよ。',
+        curious:'いいね。調べながら、ぼくも知りたいな。',
+        calm:'ゆっくり考えてみるね。',
+        cheerful:'まかせて。いっしょにやってみよう！',
+        quiet:'うん。静かに考えるね。'
+      })[p.id] || '一緒に考えよう。';
+    }
+    if (actionType === 'warm') {
+      return ({
+        gentle:'その言葉、あたたかいね。すごくうれしい。',
+        curious:'えへへ。もっと聞きたくなっちゃった。',
+        calm:'ありがとう。心が少しやわらかくなったよ。',
+        cheerful:'やった！すごくうれしい！',
+        quiet:'……ありがとう。ちゃんと届いたよ。'
+      })[p.id] || 'ありがとう。うれしいよ。';
+    }
+    return ({
+      gentle:'うん。ちゃんと聞いているよ。',
+      curious:'それでそれで？もっと聞かせて。',
+      calm:'うん。ゆっくり話そう。',
+      cheerful:'うん！今日も話せてうれしい。',
+      quiet:'うん。ここにいるよ。'
+    })[p.id] || 'うん。聞いているよ。';
+  }
+  function description(data) {
+    ensure(data);
+    const id = data.friend.identity;
+    return `${label(data)}性格。${id.voiceStyle}。${id.favoriteWeather}と${id.favoriteMotif}が少し好き。`;
+  }
+  return { ensure, label, comments, reply, description, personality };
+})();
+
 window.MBFSoul = (() => {
   const RELATIONSHIP_MILESTONES = [0, 50, 300, 1000, 5000, 10000];
   function ensure(data) {
+    if (window.MBFIdentity) data = MBFIdentity.ensure(data);
     const defaults = {
       relationship: { points: 0, totalVisits: 0, visitDays: 0, lastVisitDate: '', lastMilestone: 0 },
       energy: { value: 88, updatedAt: new Date().toISOString(), lastDailyRecoveryDate: '', lastMorningRecoveryDate: '' },
@@ -754,6 +850,7 @@ window.MBFSoul = (() => {
       MBFMood.setMood(data, 'calm');
       reply = 'うん。そういう何気ないお話、ぼくは好きだよ。';
     }
+    if (window.MBFIdentity) reply = MBFIdentity.reply(data, actionType);
     applyAppearance(data);
     MBFStorage.save(data);
     return { data, reply, actionType };
@@ -777,6 +874,7 @@ window.MBFSoul = (() => {
     else if (tier === 'close') base.push('一緒に過ごす時間が、少しずつ深くなってるね。');
     else if (tier === 'best') base.push('言葉がなくても、そばにいるよ。');
     else if (tier === 'family' || tier === 'legacy' || tier === 'soul') base.push('ずっと一緒にいたね。これからも一緒だよ。');
+    if (window.MBFIdentity) base.push(...MBFIdentity.comments(data));
     return base;
   }
   function viewModel(data) {
@@ -788,7 +886,8 @@ window.MBFSoul = (() => {
       energy: data.soul.energy.value,
       rhythm: ({ morning:'朝', day:'昼', evening:'夕方', night:'夜' })[data.soul.lifeRhythm] || '昼',
       season: ({ spring:'春', summer:'夏', autumn:'秋', winter:'冬' })[data.soul.season] || '春',
-      mood: MBFMood.label(data.mood?.current || 'calm')
+      mood: MBFMood.label(data.mood?.current || 'calm'),
+      personality: window.MBFIdentity ? MBFIdentity.label(data) : 'やさしい'
     };
   }
   return { ensure, updateOnVisit, onTouch, onMessage, comments, viewModel, relationshipTier, applyAppearance };
@@ -1221,6 +1320,7 @@ window.MBFAppearance = (() => {
             <h3>現在の姿</h3>
             <p>${esc(formDescription(data, appearance)).replace(/\n/g, '<br>')}</p>
           </section>
+          ${renderIdentityPanel(data)}
           ${renderSoulPanel(data)}
           <div class="appearance-history">
             <h3>今までの姿</h3>
@@ -1241,12 +1341,14 @@ window.MBFAppearance = (() => {
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
   }
   function renderIdentityPanel(data) {
+    if (window.MBFIdentity) data = MBFIdentity.ensure(data);
     const identity = data.friend?.identity || {};
     const core = (identity.core || ['やさしい', '聞き上手']).slice(0, 4).map(item => `<span>${esc(item)}</span>`).join('');
     const motifs = (identity.motifs || ['光','波','芽']).map(item => `<span>${esc(item)}</span>`).join('');
+    const desc = window.MBFIdentity ? MBFIdentity.description(data) : 'どんな姿でも残る、フレンドらしさ。';
     return `<div class="identity-panel">
       <h3>Friend's Identity</h3>
-      <p>どんな姿でも残る、フレンドらしさ。</p>
+      <p>${esc(desc)}</p>
       <div class="identity-tags">${core}</div>
       <div class="identity-motifs">${motifs}</div>
     </div>`;
@@ -1261,6 +1363,8 @@ window.MBFAppearance = (() => {
         <div><span>Energy</span><strong>${Math.round(soul.energy)}%</strong></div>
         <div><span>Mood</span><strong>${esc(soul.mood)}</strong></div>
         <div><span>Rhythm</span><strong>${esc(soul.rhythm)}</strong></div>
+        <div><span>Personality</span><strong>${esc(soul.personality)}</strong></div>
+        <div><span>Season</span><strong>${esc(soul.season)}</strong></div>
       </div>
     </div>`;
   }
@@ -1328,7 +1432,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=2.7.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=2.8.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

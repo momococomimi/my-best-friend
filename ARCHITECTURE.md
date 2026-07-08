@@ -1,39 +1,20 @@
-# Architecture — v3.1.0 Living Friend
+# Architecture v3.2.0 — Presence
 
-## Core
+## Principle
 
-My Best Friend は、状態を localStorage に保存する静的Webアプリです。
+A Friend lives here.
 
-- Friend's Soul: Relationship / Energy / Mood / Life Rhythm / Season / Personality
-- Friend's Identity: 性格・話し方・好み
-- Friend's Form: Soul と Identity から自然に選ばれる姿
-- Living Friend: 画面内で静かに暮らしているように見せる仕草
+The home screen should feel less like an interface and more like a quiet place where the Friend spends time.
 
-## Living Friend
+## Changes
 
-v3.1.0 では `MBFLiving` を追加しました。
+- Profile UI simplified: no Guardian shortcut, no motif icons.
+- Living Friend idle cadence slowed down.
+- Time rhythm affects the Friend subtly through visual tone.
+- Memory sprout remains separate from the Friend body.
 
-### Responsibilities
+## Design Rule
 
-- 最後に開いた時刻・閉じた時刻を保存
-- 再訪時に離れていた時間に応じたコメントを返す
-- ホーム画面で一定時間ごとに idle action を実行
-- idle action に応じて CSS クラスを付与し、仕草を変える
+Less UI, more life.
 
-### Idle actions
-
-- look-sky: 空を見る
-- sprout: 芽が揺れる
-- quiet: 静かにする
-- blink: まばたきする
-
-## Time Rhythm Background
-
-`body[data-rhythm]` により背景色と光を変更します。
-
-- morning
-- day
-- evening
-- night
-
-今後、天気・季節・記念日と接続できます。
+When in doubt, remove explanation and express the state through color, motion, space, and presence.

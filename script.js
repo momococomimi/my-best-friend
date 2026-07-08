@@ -982,7 +982,7 @@ window.MBFLiving = (() => {
         MBFStorage.save(data);
         setTimeout(() => stage.classList.remove(state.className), 5200);
         schedule();
-      }, 22000 + Math.random() * 18000);
+      }, 28000 + Math.random() * 26000);
     };
 
     driftTimer = setInterval(() => {
@@ -1222,16 +1222,12 @@ window.MBFProfile = (() => {
             <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
             <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
           </dl>
-          <div class="life-seed" aria-label="思い出の芽"><span>☀️</span><span>🌊</span><span>🌱</span></div>
-          <p class="profile-caption">変わらない約束の中で、Memoryは育っていく。</p>
         </article>
-        <div class="profile-actions">
-          <button id="guardianOpen" class="guardian-link">🔒 Guardian</button>
+        <div class="profile-actions profile-actions-single">
           <button id="profileBack" class="secondary-button">ホームへ戻る</button>
         </div>
       </section>`);
     document.getElementById('profileBack').addEventListener('click', () => MBFHome.render(data));
-    document.getElementById('guardianOpen').addEventListener('click', () => MBFGuardian.open(data));
   }
 
   function ensureBirthday(data) {

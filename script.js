@@ -9,14 +9,14 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '3.0.0',
+      version: '3.3.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
       friendNameLocked: false,
       stage: 'egg',
       memories: [],
-      profile: { completed: false, preferredName: '', birthday: '', gender: '', metAt: '' },
+      profile: { completed: false, preferredName: '', birthday: '', gender: '', metAt: '', likes: [], dislikes: [] },
       guardian: { passwordHash: '', roleLabel: 'Guardian', createdAt: '' },
       friend: {
         identityId: 'friend-1',
@@ -73,6 +73,8 @@ window.MBFStorage = (() => {
       }
     };
     if (!Array.isArray(merged.memories)) merged.memories = [];
+    if (!Array.isArray(merged.profile.likes)) merged.profile.likes = [];
+    if (!Array.isArray(merged.profile.dislikes)) merged.profile.dislikes = [];
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
     if (!Array.isArray(merged.friendBirthdayCelebrations)) merged.friendBirthdayCelebrations = [];
     if (!Array.isArray(merged.conversations)) merged.conversations = [];
@@ -1213,7 +1215,7 @@ window.MBFProfile = (() => {
   function renderBook(data) {
     MBFUi.set(`
       <section class="profile-wrap">
-        <article class="profile-book">
+        <article class="profile-book profile-notes-book">
           <div class="chapter-label">Profile</div>
           <h2 class="profile-title">ぼくが覚えている、<br>きみのこと。</h2>
           <dl class="profile-list">
@@ -1222,12 +1224,54 @@ window.MBFProfile = (() => {
             <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
             <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
           </dl>
+          ${renderNotesSection('好きなこと', 'likes', data.profile.likes)}
+          ${renderNotesSection('少し苦手なこと', 'dislikes', data.profile.dislikes)}
         </article>
         <div class="profile-actions profile-actions-single">
           <button id="profileBack" class="secondary-button">ホームへ戻る</button>
         </div>
       </section>`);
     document.getElementById('profileBack').addEventListener('click', () => MBFHome.render(data));
+    bindNoteButtons(data);
+  }
+
+  function renderNotesSection(title, kind, values) {
+    const items = (values || []).map((item, index) => `<button class="profile-note-chip" data-note-kind="${kind}" data-note-index="${index}" type="button">${esc(item)}</button>`).join('');
+    return `<section class="profile-notes" data-note-section="${kind}">
+      <div class="profile-notes-head">
+        <h3>${esc(title)}</h3>
+        <button class="profile-note-add" data-note-add="${kind}" type="button">＋ 追加</button>
+      </div>
+      <div class="profile-note-list ${items ? '' : 'empty'}">
+        ${items || '<span>まだありません</span>'}
+      </div>
+    </section>`;
+  }
+
+  function bindNoteButtons(data) {
+    document.querySelectorAll('[data-note-add]').forEach(button => button.addEventListener('click', () => {
+      const kind = button.dataset.noteAdd;
+      const label = kind === 'likes' ? '好きなこと' : '少し苦手なこと';
+      const value = prompt(`${label}を入力してください`);
+      const text = (value || '').trim();
+      if (!text) return;
+      data.profile[kind] ||= [];
+      if (!data.profile[kind].includes(text)) data.profile[kind].push(text);
+      MBFStorage.save(data);
+      renderBook(data);
+    }));
+    document.querySelectorAll('[data-note-kind]').forEach(button => button.addEventListener('click', () => {
+      const kind = button.dataset.noteKind;
+      const index = Number(button.dataset.noteIndex);
+      const current = data.profile[kind]?.[index] || '';
+      const value = prompt('内容を変更できます。空にすると削除します。', current);
+      if (value === null) return;
+      const text = value.trim();
+      if (!text) data.profile[kind].splice(index, 1);
+      else data.profile[kind][index] = text;
+      MBFStorage.save(data);
+      renderBook(data);
+    }));
   }
 
   function ensureBirthday(data) {
@@ -1423,21 +1467,14 @@ window.MBFAppearance = (() => {
           <div class="chapter-label">Friend's Form</div>
           <h2 class="appearance-title">フレンドの姿</h2>
           ${renderFriendShape(appearance)}
-          <div class="form-name">${iconFor(appearance.type)} ${esc(appearance.name)}</div>
+          <div class="friend-form-name">${esc(data.friendName || 'フレンド')}</div>
+          <div class="form-name">${esc(appearance.name)}の姿</div>
           <section class="form-description">
             <h3>現在の姿</h3>
             <p>${esc(formDescription(data, appearance)).replace(/\n/g, '<br>')}</p>
           </section>
           ${renderIdentityPanel(data)}
           ${renderSoulPanel(data)}
-          <div class="appearance-history">
-            <h3>今までの姿</h3>
-            <ul>${history.map(item => `<li>${iconFor(item.type)} ${esc(item.name || '光のしずく')}</li>`).join('')}</ul>
-          </div>
-          <div class="appearance-future">
-            <h3>出会えるかもしれない姿</h3>
-            <div class="future-forms">☀️ 光　🌊 波　🌱 芽　🌸 風　❄️ 雪　🐶 動物　🤖 ロボット　✨ Harmony</div>
-          </div>
         </article>
         <div class="appearance-actions">
           <button id="appearanceMemory" class="primary-button">この姿のMemoryを見る</button>

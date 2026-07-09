@@ -1,20 +1,23 @@
-# Architecture v3.2.0 — Presence
+# Architecture — v3.3.0 Profile Notes
 
-## Principle
+## Profile Notes
+Profile now stores mutable notes:
 
-A Friend lives here.
+- `profile.likes: string[]`
+- `profile.dislikes: string[]`
 
-The home screen should feel less like an interface and more like a quiet place where the Friend spends time.
+These are intentionally editable because they represent the user's current self, not immutable identity.
 
-## Changes
+## Future AI memory rule
+When AI conversation is connected later, the friend may suggest remembering a like/dislike only after explicit user or Guardian confirmation.
 
-- Profile UI simplified: no Guardian shortcut, no motif icons.
-- Living Friend idle cadence slowed down.
-- Time rhythm affects the Friend subtly through visual tone.
-- Memory sprout remains separate from the Friend body.
+## Friend's Form
+The Form page shows:
 
-## Design Rule
+1. Friend's name
+2. Current form name as `○○の姿`
+3. Current form description
+4. Friend's Identity
+5. Friend's Soul
 
-Less UI, more life.
-
-When in doubt, remove explanation and express the state through color, motion, space, and presence.
+Past/future form lists are removed to avoid collection-game behavior.

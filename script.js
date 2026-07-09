@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '3.4.1',
+      version: '3.4.2',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -503,7 +503,12 @@ window.MBFMood = (() => {
   function updateOnVisit(data) {
     const awayDays = daysSince(data.mood?.lastSeenAt);
     data.mood ||= { current: 'calm' };
-    data.mood.current = awayDays >= 2 ? 'lonely' : timeMood();
+    const touchedAt = data.mood.lastTouchedAt ? new Date(data.mood.lastTouchedAt).getTime() : 0;
+    const touchedRecently = touchedAt && !Number.isNaN(touchedAt) && (Date.now() - touchedAt) < 30 * 60 * 1000;
+    // Friend Engine: screen transitions must not create a new mood.
+    // Only a real return after time away may change the friend's mood automatically.
+    if (awayDays >= 2) data.mood.current = 'lonely';
+    else if (!touchedRecently && !data.mood.current) data.mood.current = timeMood();
     data.mood.lastSeenAt = new Date().toISOString();
     applyAppearance(data);
     MBFStorage.save(data);
@@ -738,8 +743,10 @@ window.MBFSoul = (() => {
     data = ensure(data);
     recoverEnergy(data);
     const key = todayKey();
-    const awayDays = daysSinceDateKey(data.soul.relationship.lastVisitDate);
-    if (data.soul.relationship.lastVisitDate !== key) {
+    const previousVisitDate = data.soul.relationship.lastVisitDate;
+    const firstVisitToday = previousVisitDate !== key;
+    const awayDays = daysSinceDateKey(previousVisitDate);
+    if (firstVisitToday) {
       data.soul.relationship.lastVisitDate = key;
       data.soul.relationship.totalVisits += 1;
       data.soul.relationship.visitDays += 1;
@@ -748,9 +755,12 @@ window.MBFSoul = (() => {
     data.soul.lifeRhythm = rhythm();
     data.soul.season = season();
     data.mood ||= { current: 'calm' };
+    const touchedAt = data.mood.lastTouchedAt ? new Date(data.mood.lastTouchedAt).getTime() : 0;
+    const touchedRecently = touchedAt && !Number.isNaN(touchedAt) && (Date.now() - touchedAt) < 30 * 60 * 1000;
     if (awayDays >= 3) data.mood.current = 'lonely';
     else if (data.soul.energy.value < 35) data.mood.current = 'sleepy';
-    else data.mood.current = MBFMood.updateOnVisit(data).mood.current;
+    else if (!touchedRecently && firstVisitToday) data = MBFMood.updateOnVisit(data);
+    // Same day screen moves keep the same FriendState.
     applyAppearance(data);
     MBFStorage.save(data);
     return data;
@@ -1008,6 +1018,7 @@ window.MBFHome = (() => {
 
   function render(data) {
     if (commentTimer) clearInterval(commentTimer);
+    data = MBFStorage.load();
     data = MBFSoul.updateOnVisit(data);
     const livingGreeting = window.MBFLiving ? MBFLiving.greeting(data) : '';
     if (window.MBFLiving) data = MBFLiving.markOpen(data);
@@ -1038,12 +1049,12 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
-    document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
-    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
-    document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
-    document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
-    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
-    document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
+    document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(MBFStorage.load()));
+    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(MBFStorage.load()));
+    document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
+    document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(MBFStorage.load()));
+    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(MBFStorage.load()));
+    document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(MBFStorage.load()));
   }
 
   function syncHomeFriend(data) {
@@ -1476,6 +1487,8 @@ window.MBFAppearance = (() => {
       </div>`;
   }
   function render(data) {
+    data = MBFStorage.load();
+    if (window.MBFSoul) data = MBFSoul.applyAppearance(data);
     data = MBFStorage.ensureAppearanceMemory(data);
     MBFStorage.save(data);
     const appearance = current(data);
@@ -1501,8 +1514,8 @@ window.MBFAppearance = (() => {
         </div>
       </section>
     `);
-    document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
-    document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
+    document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(MBFStorage.load()));
+    document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(MBFStorage.load(), 'appearance-first'));
   }
   function renderIdentityPanel(data) {
     if (window.MBFIdentity) data = MBFIdentity.ensure(data);
@@ -1652,7 +1665,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=3.0.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=3.4.2').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

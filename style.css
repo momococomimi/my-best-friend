@@ -2614,3 +2614,22 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
 .care-card .memory-sprout {
   display: none !important;
 }
+
+/* v3.4.2 — Friend Engine persistence and world sprout fine tuning */
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  bottom: clamp(-10px, -1.2svh, 0px) !important;
+  width: clamp(54px, 13.5vw, 76px) !important;
+  height: clamp(54px, 13.5vw, 76px) !important;
+  filter: drop-shadow(0 14px 10px rgba(46, 108, 64, .24)) !important;
+  z-index: 6 !important;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  margin-bottom: clamp(104px, 13svh, 140px) !important;
+}
+.appearance-wrap .appearance-stage .light-drop {
+  width: clamp(145px, 42vw, 220px) !important;
+  height: clamp(145px, 42vw, 220px) !important;
+}
+.appearance-wrap .appearance-stage {
+  height: clamp(180px, 34svh, 250px) !important;
+}

@@ -2633,3 +2633,38 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
 .appearance-wrap .appearance-stage {
   height: clamp(180px, 34svh, 250px) !important;
 }
+
+/* v3.4.3 — Form portrait balance and Home world sprout grounding */
+/* Friend's Form should show the same FriendState, but not overwhelm the quiet profile card. */
+.appearance-wrap .appearance-stage {
+  height: clamp(155px, 29svh, 215px) !important;
+}
+.appearance-wrap .appearance-stage .light-drop {
+  width: clamp(132px, 35vw, 190px) !important;
+  height: clamp(132px, 35vw, 190px) !important;
+  margin-bottom: clamp(8px, 1.5svh, 16px) !important;
+}
+.appearance-wrap .drop-wave {
+  width: 146% !important;
+  height: 146% !important;
+  border-width: 3px !important;
+  opacity: .72 !important;
+}
+
+/* Home sprout: separated from Friend, slightly lower, grounded, and calm. */
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  bottom: clamp(-26px, -3.3svh, -12px) !important;
+  width: clamp(50px, 12.4vw, 68px) !important;
+  height: clamp(50px, 12.4vw, 68px) !important;
+  z-index: 5 !important;
+  filter: drop-shadow(0 15px 9px rgba(45, 98, 60, .22)) !important;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout::before {
+  width: 86% !important;
+  height: 20% !important;
+  bottom: -1% !important;
+  background: radial-gradient(ellipse at center, rgba(83, 130, 82, .24), rgba(83, 130, 82, .09) 58%, transparent 76%) !important;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  margin-bottom: clamp(132px, 16svh, 174px) !important;
+}

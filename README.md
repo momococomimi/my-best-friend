@@ -1,8 +1,8 @@
-# My Best Friend v3.4.2 — Friend Engine
+# My Best Friend v3.4.3 — Friend Engine
 
 いつか大きくなる、キミへの贈りもの
 
-## New in v3.4.2
+## New in v3.4.3
 
 - FriendState / Friend Engine 方針を導入
 - Home / Friend’s Form / Message / Voice が同じフレンド状態を表示するよう整理
@@ -17,7 +17,7 @@
 画面ごとに別のフレンドを作るのではなく、ひとつの FriendState をすべての画面が見ます。
 
 
-## v3.4.2 Sprout Ground
+## v3.4.3 Sprout Ground
 
 - Home画面の芽を大きく調整
 - フレンドから離し、世界側に固定
@@ -25,7 +25,13 @@
 - Friend’s Form側には芽を表示しない方針を維持
 
 
-## v3.4.2 Friend Engine Persistence
+## v3.4.3 Friend Engine Persistence
 - FriendStateが画面遷移で初期化されないように調整。
 - なでた後のMood/色/姿をHome・Friend's Form間で保持。
 - Homeの芽をさらに世界側へ下げ、地面に近い位置へ調整。
+
+
+## v3.4.3 Quiet Balance
+- Friend's Form portrait size is reduced for a quieter, longer-lasting layout.
+- Home sprout is moved lower, kept separate from the Friend, and grounded with a softer shadow.
+- FriendState persistence from v3.4.2 is preserved.

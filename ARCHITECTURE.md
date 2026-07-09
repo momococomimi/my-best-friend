@@ -1,4 +1,4 @@
-# Architecture — v3.4.0 Friend Engine
+# Architecture — v3.4.3 Friend Engine
 
 ## Friend Engine
 
@@ -25,9 +25,13 @@ Home, Friend’s Form, Message, Voice, Memory, Profile, and Guardian must never 
 The sprout is not part of the Friend body. It belongs to the Home world as the place where shared memories grow.
 
 
-## v3.4.2 Sprout Ground
+## v3.4.3 Sprout Ground
 Home sprout is rendered as a world-side CSS plant. It is larger, separated from the Friend body, and animated independently.
 
 
-## v3.4.2 Friend Engine Persistence
+## v3.4.3 Friend Engine Persistence
 All primary screens must read the same saved FriendState before rendering. Screen transitions must not reset mood, form, color, expression, energy, or relationship. Touch interactions update FriendState first; views render from that state.
+
+
+## v3.4.3 Layout Balance
+Friend's Form uses the same FriendState as Home, but the portrait is rendered at a calmer size. The Home sprout remains a world object, lower and visually grounded, not a body part.

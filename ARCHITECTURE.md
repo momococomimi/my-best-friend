@@ -21,3 +21,8 @@ The Form page shows:
 5. Friend's Soul
 
 Past/future form lists are removed to avoid collection-game behavior.
+
+
+## v3.3.1 FriendState Rule
+Friend's Form / Home / Message / future AI must render from a single `data.friend.appearance` state.
+No screen should independently create another current form. This preserves the identity rule: one Friend, one current form.

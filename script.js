@@ -1033,10 +1033,8 @@ window.MBFHome = (() => {
     `);
     MBFAppearance.bindFriendTouch(document.querySelector('.home-appearance'), () => {
       data = MBFSoul.onTouch(data);
+      syncHomeFriend(data);
       setHomeComment('えへへ。なでてくれて、うれしい。');
-      const root = document.querySelector('.home-appearance');
-      root?.classList.remove('mood-calm','mood-sleepy','mood-excited','mood-thinking','mood-lonely');
-      root?.classList.add('mood-happy');
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
@@ -1046,6 +1044,22 @@ window.MBFHome = (() => {
     document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
     document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
     document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
+  }
+
+  function syncHomeFriend(data) {
+    const current = document.querySelector('.home-appearance');
+    if (!current) return;
+    const mood = data.mood?.current || 'happy';
+    const holder = document.createElement('div');
+    holder.innerHTML = MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`);
+    const next = holder.firstElementChild;
+    current.replaceWith(next);
+    MBFAppearance.bindFriendTouch(next, () => {
+      data = MBFSoul.onTouch(data);
+      syncHomeFriend(data);
+      setHomeComment('えへへ。なでてくれて、うれしい。');
+    });
+    if (window.MBFLiving) MBFLiving.start(next, setHomeComment, data);
   }
 
   function startComments(comments) {

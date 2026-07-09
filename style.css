@@ -2487,3 +2487,16 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
   .friend-form-name { font-size: 25px; }
   .form-name { font-size: 19px !important; }
 }
+
+
+/* v3.3.1 — FriendState sync and quiet Form stage
+   The sprout belongs to the home/world, not to the Friend's Form portrait. */
+.appearance-wrap .appearance-stage .memory-sprout,
+.story-appearance .memory-sprout,
+.talk-friend .memory-sprout,
+.care-friend .memory-sprout {
+  display: none !important;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  display: block !important;
+}

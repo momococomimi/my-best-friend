@@ -10,3 +10,7 @@
 - 好きなこと・少し苦手なことは、勝手に決めつけず、確認してから覚える。
 - ゲームのようなレベルやコンプリート要素ではなく、一緒に過ごす時間を大切にする。
 - 姿は変わる。親友は変わらない。
+
+
+## v3.3.1 Identity Consistency
+The Friend must not appear as a different being between screens. The current form is shared across the app.

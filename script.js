@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '3.3.0',
+      version: '3.4.1',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -1472,7 +1472,7 @@ window.MBFAppearance = (() => {
           <span class="drop-cheek cheek-right"></span>
           <span class="drop-mouth"></span>
         </div>
-        <span class="memory-sprout" aria-hidden="true">🌱</span>
+        <span class="memory-sprout" aria-hidden="true"><span class="sprout-stem"></span><span class="sprout-leaf sprout-left"></span><span class="sprout-leaf sprout-right"></span></span>
       </div>`;
   }
   function render(data) {

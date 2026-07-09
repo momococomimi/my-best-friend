@@ -2535,3 +2535,82 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
   left: 41.5%;
   border-radius: 0 0 999px 999px;
 }
+
+
+/* v3.4.1 Sprout Ground — bigger, clearly separated, world-side sprout */
+.home-scene .appearance-stage.home-appearance {
+  height: clamp(280px, 41svh, 360px) !important;
+  margin-top: -6px !important;
+  margin-bottom: clamp(8px, 2svh, 18px) !important;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  margin-bottom: clamp(76px, 10svh, 116px) !important;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: clamp(8px, 2.4svh, 22px) !important;
+  width: clamp(58px, 15vw, 86px) !important;
+  height: clamp(58px, 15vw, 86px) !important;
+  font-size: 0 !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 10px rgba(57, 120, 72, .18));
+  animation: memorySproutGroundSway 4.8s ease-in-out infinite !important;
+  z-index: 9;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  width: 72%;
+  height: 18%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(101, 154, 94, .22), rgba(101, 154, 94, .08) 56%, transparent 72%);
+}
+.home-scene .appearance-stage.home-appearance .sprout-stem {
+  position: absolute;
+  left: 50%;
+  bottom: 15%;
+  width: 7%;
+  height: 52%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8edb60, #43a956);
+  transform: translateX(-50%) rotate(-3deg);
+  transform-origin: 50% 100%;
+}
+.home-scene .appearance-stage.home-appearance .sprout-leaf {
+  position: absolute;
+  bottom: 50%;
+  width: 34%;
+  height: 24%;
+  background: radial-gradient(circle at 35% 35%, #c7f48f, #61c55c 72%, #3aa354);
+  box-shadow: inset -2px -2px 3px rgba(24, 103, 54, .12);
+}
+.home-scene .appearance-stage.home-appearance .sprout-left {
+  left: 16%;
+  border-radius: 90% 12% 80% 16%;
+  transform: rotate(-28deg);
+}
+.home-scene .appearance-stage.home-appearance .sprout-right {
+  right: 14%;
+  bottom: 57%;
+  border-radius: 12% 90% 16% 80%;
+  transform: rotate(24deg);
+}
+@keyframes memorySproutGroundSway {
+  0%,100% { transform: translateX(-50%) rotate(-2.5deg); }
+  50% { transform: translateX(-50%) rotate(3deg); }
+}
+
+/* Keep non-home screens free of the world sprout. */
+.appearance-wrap .appearance-stage .memory-sprout,
+.story-appearance .memory-sprout,
+.talk-friend .memory-sprout,
+.care-friend .memory-sprout,
+.care-card .memory-sprout {
+  display: none !important;
+}

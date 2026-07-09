@@ -23,3 +23,7 @@ Home, Friend’s Form, Message, Voice, Memory, Profile, and Guardian must never 
 ## Sprout Rule
 
 The sprout is not part of the Friend body. It belongs to the Home world as the place where shared memories grow.
+
+
+## v3.4.1 Sprout Ground
+Home sprout is rendered as a world-side CSS plant. It is larger, separated from the Friend body, and animated independently.

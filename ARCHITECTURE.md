@@ -12,3 +12,8 @@ Friendの状態は引き続き単一のFriendStateを全画面で参照する。
 - Voice microphone is fixed above the lower-right navigation
 - Profile is reorganized into Friend and きみのこと
 - Friend Form opens from the Form row inside Profile
+
+
+## v3.7.2
+- Voice is an in-place Home interaction using the Web Speech API when available.
+- Profile rows use a reusable accordion component; Form opens the existing Friend's Form screen.

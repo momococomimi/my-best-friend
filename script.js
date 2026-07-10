@@ -1105,8 +1105,12 @@ window.MBFHome = (() => {
         <div class="home-message card" aria-live="polite">
           <div id="homeComment">${escapeHtml(comments[0])}</div>
         </div>
-        <button class="floating-voice-button" id="voiceBtn" type="button" aria-label="Voice">
-          <span aria-hidden="true">⌁</span>
+        <button class="floating-voice-button" id="voiceBtn" type="button" aria-label="マイクで話す" aria-pressed="false">
+          <svg class="voice-mic-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="8" y="2.5" width="8" height="13" rx="4"></rect>
+            <path d="M5.5 11.5v.8a6.5 6.5 0 0 0 13 0v-.8"></path>
+            <path d="M12 18.8v2.7M8.5 21.5h7"></path>
+          </svg>
         </button>
         ${MBFNav.markup('home')}
       </section>
@@ -1118,7 +1122,7 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
-    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(MBFStorage.load()));
+    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.toggleFromHome());
     MBFNav.bind(data);
   }
 
@@ -1160,23 +1164,99 @@ window.MBFHome = (() => {
 })();
 
 window.MBFVoice = (() => {
-  function render(data) {
-    MBFUi.set(`
-      <section class="talk-wrap voice-wrap">
-        <article class="talk-card card">
-          <div class="talk-label">Voice</div>
-          ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'talk-friend')}
-          <h2>声ではなす</h2>
-          <p>今はまだ準備中。<br>でも、いつか声で「おかえり」って言えるようにするよ。</p>
-          <div class="voice-orb">🎙</div>
-        </article>
-        <div class="talk-actions"><button id="voiceHome" class="secondary-button">ホームへ戻る</button></div>
-      </section>
-    `);
-    MBFAppearance.bindFriendTouch(document.querySelector('.talk-friend'));
-    document.getElementById('voiceHome').addEventListener('click', () => MBFHome.render(data));
+  let recognition = null;
+  let listening = false;
+
+  function button() { return document.getElementById('voiceBtn'); }
+  function setButtonState(active) {
+    listening = active;
+    const btn = button();
+    if (!btn) return;
+    btn.classList.toggle('is-listening', active);
+    btn.setAttribute('aria-pressed', String(active));
+    btn.setAttribute('aria-label', active ? '聞き取りを止める' : 'マイクで話す');
   }
-  return { render };
+  function sayOnHome(text) {
+    const el = document.getElementById('homeComment');
+    if (!el) return;
+    el.classList.remove('comment-fade');
+    void el.offsetWidth;
+    el.textContent = text;
+    el.classList.add('comment-fade');
+  }
+  function saveVoiceExchange(transcript, reply) {
+    const data = MBFStorage.load();
+    data.conversations ||= [];
+    data.conversations.push({ user: transcript, friend: reply, source: 'voice', createdAt: new Date().toISOString() });
+    data.conversations = data.conversations.slice(-40);
+    MBFStorage.save(data);
+  }
+  function friendlyReply(text) {
+    const trimmed = String(text || '').trim();
+    if (!trimmed) return 'うまく聞き取れなかったよ。もう一度、ゆっくり聞かせてね。';
+    if (/おはよう/.test(trimmed)) return 'おはよう。今日も会えてうれしいよ。';
+    if (/ただいま/.test(trimmed)) return 'おかえり。待っていたよ。';
+    if (/おやすみ/.test(trimmed)) return 'おやすみ。ゆっくり休もうね。';
+    return `「${trimmed.length > 22 ? trimmed.slice(0, 22) + '…' : trimmed}」って聞こえたよ。聞かせてくれて、ありがとう。`;
+  }
+  function supportedRecognition() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+  function stop() {
+    if (recognition && listening) {
+      try { recognition.stop(); } catch (_) {}
+    }
+    setButtonState(false);
+  }
+  function start() {
+    const Recognition = supportedRecognition();
+    if (!Recognition) {
+      sayOnHome('このブラウザでは、まだマイクの聞き取りを使えないみたい。');
+      setButtonState(false);
+      return;
+    }
+    recognition = new Recognition();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => {
+      setButtonState(true);
+      sayOnHome('うん。聞いているよ。');
+      if ('vibrate' in navigator) navigator.vibrate(25);
+    };
+    recognition.onresult = event => {
+      let interim = '';
+      let finalText = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0]?.transcript || '';
+        if (event.results[i].isFinal) finalText += t;
+        else interim += t;
+      }
+      if (interim) sayOnHome(interim);
+      if (finalText) {
+        const reply = friendlyReply(finalText);
+        saveVoiceExchange(finalText, reply);
+        window.setTimeout(() => sayOnHome(reply), 320);
+      }
+    };
+    recognition.onerror = event => {
+      const message = event.error === 'not-allowed'
+        ? 'マイクの使用を許可すると、ここで話せるよ。'
+        : event.error === 'no-speech'
+          ? '声が聞こえなかったよ。もう一度、聞かせてね。'
+          : 'うまく聞き取れなかったよ。もう一度試してみよう。';
+      sayOnHome(message);
+      setButtonState(false);
+    };
+    recognition.onend = () => setButtonState(false);
+    try { recognition.start(); } catch (_) { setButtonState(false); }
+  }
+  function toggleFromHome() {
+    if (listening) stop();
+    else start();
+  }
+  return { toggleFromHome, stop };
 })();
 
 window.MBFMessage = (() => {
@@ -1308,46 +1388,95 @@ window.MBFProfile = (() => {
     const appearance = MBFAppearance.current(data);
     const soul = MBFSoul.viewModel(data);
     const identity = window.MBFIdentity ? MBFIdentity.description(data) : 'やさしく、ゆっくり寄り添う。';
+    const promise = '怒らない。責めない。見捨てない。大切なことを守る。';
+    const friendRows = [
+      ['form', 'Form', `${esc(appearance.name || '光のしずく')}の姿`],
+      ['identity', 'Identity', esc(identity)],
+      ['relationship', 'Relationship', esc(soul.relationshipLabel)],
+      ['energy', 'Energy', `${Math.round(soul.energy)}%`],
+      ['mood', 'Mood', esc(soul.mood)],
+      ['rhythm', 'Life Rhythm', esc(soul.rhythm)],
+      ['season', 'Season', esc(soul.season)],
+      ['weather', 'Weather', '—'],
+      ['promise', 'Promise', promise]
+    ].map(([id,label,value]) => accordionRow(id, label, value, 'friend')).join('');
+    const youRows = [
+      ['name', '名前', esc(data.userName || '未設定')],
+      ['birthday', '誕生日', esc(formatDate(data.profile.birthday))],
+      ['gender', '性別', esc(genderLabel(data.profile.gender))],
+      ['met', '親友になった日', esc(metDate(data))]
+    ].map(([id,label,value]) => accordionRow(id, label, value, 'you')).join('');
+
     MBFUi.set(`
-      <section class="profile-wrap quiet-profile-wrap">
-        <article class="profile-book profile-notes-book quiet-profile-book">
+      <section class="profile-wrap quiet-profile-wrap accordion-profile-wrap">
+        <article class="profile-book quiet-profile-book accordion-profile-book">
           <div class="chapter-label">Profile</div>
 
-          <section class="profile-friend-section">
-            <h2>Friend</h2>
-            ${MBFAppearance.renderFriendShape(appearance, 'profile-friend-portrait')}
-            <div class="profile-friend-name">${esc(data.friendName || 'フレンド')}</div>
-            <dl class="friend-status-list">
-              <button class="friend-status-row is-link" id="profileFormLink" type="button">
-                <dt>Form</dt><dd>${esc(appearance.name || '光のしずく')}</dd><span aria-hidden="true">›</span>
-              </button>
-              <div class="friend-status-row"><dt>Identity</dt><dd>${esc(identity)}</dd></div>
-              <div class="friend-status-row"><dt>Relationship</dt><dd>${esc(soul.relationshipLabel)}</dd></div>
-              <div class="friend-status-row"><dt>Energy</dt><dd>${Math.round(soul.energy)}%</dd></div>
-              <div class="friend-status-row"><dt>Mood</dt><dd>${esc(soul.mood)}</dd></div>
-              <div class="friend-status-row"><dt>Life Rhythm</dt><dd>${esc(soul.rhythm)}</dd></div>
-              <div class="friend-status-row"><dt>Season</dt><dd>${esc(soul.season)}</dd></div>
-              <div class="friend-status-row"><dt>Weather</dt><dd>—</dd></div>
-              <div class="friend-status-row"><dt>Promise</dt><dd>Always with you</dd></div>
-            </dl>
+          <section class="profile-friend-section accordion-section">
+            <div class="profile-friend-summary">
+              ${MBFAppearance.renderFriendShape(appearance, 'profile-friend-portrait')}
+              <div>
+                <h2>Friend</h2>
+                <div class="profile-friend-name">${esc(data.friendName || 'フレンド')}</div>
+                <p>いつも、そばにいるよ。</p>
+              </div>
+            </div>
+            <div class="profile-accordion-list">${friendRows}</div>
           </section>
 
-          <section class="profile-you-section">
+          <section class="profile-you-section accordion-section">
             <h2>きみのこと</h2>
-            <dl class="profile-list quiet-you-list">
-              <div><dt>名前</dt><dd>${esc(data.userName)}</dd></div>
-              <div><dt>誕生日</dt><dd>${esc(formatDate(data.profile.birthday))}</dd></div>
-              <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
-              <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
-            </dl>
-            ${renderNotesSection('好きなこと', 'likes', data.profile.likes)}
-            ${renderNotesSection('少し苦手なこと', 'dislikes', data.profile.dislikes)}
+            <div class="profile-accordion-list">${youRows}</div>
+            ${accordionNotesRow('likes', '好きなこと', data.profile.likes)}
+            ${accordionNotesRow('dislikes', '少し苦手なこと', data.profile.dislikes)}
           </section>
         </article>
         ${MBFNav.markup('profile')}
       </section>`);
-    document.getElementById('profileFormLink').addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
+    bindAccordions(data);
     MBFNav.bind(data);
+  }
+
+  function accordionRow(id, label, value, group) {
+    return `<div class="profile-accordion" data-accordion="${group}-${id}">
+      <button class="profile-accordion-trigger" type="button" aria-expanded="false">
+        <span class="profile-accordion-label">${label}</span>
+        <span class="profile-accordion-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="profile-accordion-panel" hidden>
+        <p>${value}</p>
+        ${id === 'form' ? '<button class="profile-form-open" id="profileFormLink" type="button">フレンドの姿を見る</button>' : ''}
+      </div>
+    </div>`;
+  }
+
+  function accordionNotesRow(kind, label, values) {
+    const items = (values || []).map((item,index) => `<button class="profile-note-chip" data-note-kind="${kind}" data-note-index="${index}" type="button">${esc(item)}</button>`).join('');
+    return `<div class="profile-accordion profile-notes-accordion" data-accordion="you-${kind}">
+      <button class="profile-accordion-trigger" type="button" aria-expanded="false">
+        <span class="profile-accordion-label">${label}</span>
+        <span class="profile-accordion-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="profile-accordion-panel" hidden>
+        <div class="profile-note-list ${items ? '' : 'empty'}">${items || '<span>まだありません</span>'}</div>
+        <button class="profile-note-add" data-note-add="${kind}" type="button">＋ 追加</button>
+      </div>
+    </div>`;
+  }
+
+  function bindAccordions(data) {
+    document.querySelectorAll('.profile-accordion-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const row = trigger.closest('.profile-accordion');
+        const panel = row.querySelector('.profile-accordion-panel');
+        const open = trigger.getAttribute('aria-expanded') === 'true';
+        trigger.setAttribute('aria-expanded', String(!open));
+        row.classList.toggle('is-open', !open);
+        panel.hidden = open;
+      });
+    });
+    const formLink = document.getElementById('profileFormLink');
+    if (formLink) formLink.addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
     bindNoteButtons(data);
   }
 
@@ -1756,7 +1885,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=3.7.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=3.7.2').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

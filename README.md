@@ -1,4 +1,4 @@
-# My Best Friend v3.7.1
+# My Best Friend v3.7.2
 
 ## Friend Design Sprint 2
 
@@ -19,3 +19,10 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=370`
 - Voice microphone is fixed above the lower-right navigation
 - Profile is reorganized into Friend and きみのこと
 - Friend Form opens from the Form row inside Profile
+
+
+## v3.7.2 In-place Voice & Accordion Profile
+- Voice専用画面を廃止し、Home右下のマイクから直接音声認識
+- マイクを標準的なSVGアイコンへ変更
+- ProfileをFriend / きみのことのアコーディオンUIへ変更
+- Profile内の文字サイズを統一

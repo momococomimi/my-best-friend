@@ -1,18 +1,13 @@
-# Architecture — v3.5.0 Friend Design Sprint 1
+# Architecture — v3.6.0
 
-## Single Friend State
+## FriendState
 
-Home / Friend's Form / Message / Voice / Memory / Profile / Guardian は、同じ保存済みFriendStateを参照します。
+フレンドは世界に一人だけです。Home、Form、Message、Voice、Memoryは同じ保存状態を参照します。
 
-## Presence Layer
+## Living Friend
 
-- Continuous breathing: CSS animation
-- Natural blink: irregular JavaScript timer
-- Quiet glance: irregular JavaScript timer
-- Idle motions: MBFLiving state machine
-- Living sky: slow CSS animation
-- World sprout: Home-only world object
+`MBFLiving` が呼吸、まばたき、視線、静かな再会を担当します。表示画面を離れる時はタイマーを停止し、画面ごとの別人格を作りません。
 
 ## Accessibility
 
-`prefers-reduced-motion` が有効な場合、呼吸・波紋・雲・芽などの連続アニメーションを停止します。
+`prefers-reduced-motion` を尊重し、動きを減らす設定では連続アニメーションを停止します。

@@ -2814,3 +2814,61 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
   0%,100% { opacity: .72; transform: scale(1); }
   50% { opacity: .9; transform: scale(1.035); }
 }
+
+/* =========================================================
+   v3.6.0 — Living Friend / Quiet Reunion
+   ========================================================= */
+
+/* The first few seconds feel like being noticed, not like an effect. */
+.appearance-stage.living-notice .light-drop {
+  animation: friendNotice 3.2s cubic-bezier(.22,.75,.28,1) both !important;
+}
+.appearance-stage.living-notice .drop-cheek {
+  animation: cheekWarmth 3.2s ease both;
+}
+
+/* Looking is expressed by the face, while the body stays near its favorite place. */
+.light-drop.living-look-sky .drop-eye {
+  transform: translateY(-3px) scaleY(.92);
+}
+.light-drop.living-sprout .drop-eye {
+  transform: translateY(3px) scaleY(.94);
+}
+.light-drop.living-sprout {
+  transform-origin: 50% 75%;
+}
+
+/* The mouth reacts only a little during reunion and touch. */
+.appearance-stage.living-notice .drop-mouth,
+.light-drop.face-happy .drop-mouth {
+  filter: brightness(1.05);
+}
+
+/* Keep the world sprout calm and clearly grounded. */
+.home-scene .appearance-stage.home-appearance .memory-sprout {
+  bottom: clamp(-10px, -1.2svh, -3px) !important;
+  width: clamp(70px, 18vw, 96px) !important;
+  height: clamp(70px, 18vw, 96px) !important;
+}
+.home-scene .appearance-stage.home-appearance .memory-sprout::before {
+  opacity: .9;
+  filter: blur(.2px);
+}
+
+@keyframes friendNotice {
+  0%   { transform: translate3d(0,5px,0) scale(.992); }
+  28%  { transform: translate3d(0,-3px,0) scale(1.012); }
+  58%  { transform: translate3d(0,-7px,0) scale(1.018); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+@keyframes cheekWarmth {
+  0%,100% { opacity: .78; }
+  42%,68% { opacity: .96; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appearance-stage.living-notice .light-drop,
+  .appearance-stage.living-notice .drop-cheek {
+    animation: none !important;
+  }
+}

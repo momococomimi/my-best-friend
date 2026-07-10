@@ -1005,21 +1005,34 @@ window.MBFLiving = (() => {
 
     root.classList.add('living-active', 'living-breathe');
 
+    // A quiet three-second reunion: notice the user, then settle back.
+    root.classList.add('living-notice');
+    window.setTimeout(() => root.classList.remove('living-notice'), 3200);
+
+    const blinkOnce = (duration = 500) => {
+      stage.classList.add('living-natural-blink');
+      window.setTimeout(() => stage.classList.remove('living-natural-blink'), duration);
+    };
+
     const scheduleBlink = () => {
       blinkTimer = setTimeout(() => {
-        stage.classList.add('living-natural-blink');
-        setTimeout(() => stage.classList.remove('living-natural-blink'), 520);
+        blinkOnce(480);
+        // Rare double blink: subtle enough to feel natural, not performative.
+        if (Math.random() < 0.18) {
+          window.setTimeout(() => blinkOnce(420), 720);
+        }
         scheduleBlink();
-      }, 3200 + Math.random() * 7600);
+      }, 3600 + Math.random() * 9200);
     };
 
     const scheduleGlance = () => {
       glanceTimer = setTimeout(() => {
-        const glance = Math.random() > .5 ? 'living-glance-left' : 'living-glance-right';
+        const glances = ['living-glance-left', 'living-glance-right', 'living-look-sky', 'living-sprout'];
+        const glance = glances[Math.floor(Math.random() * glances.length)];
         stage.classList.add(glance);
-        setTimeout(() => stage.classList.remove(glance), 2200);
+        setTimeout(() => stage.classList.remove(glance), glance === 'living-sprout' ? 2800 : 2200);
         scheduleGlance();
-      }, 12000 + Math.random() * 18000);
+      }, 14000 + Math.random() * 22000);
     };
 
     driftTimer = setInterval(() => {

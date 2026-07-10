@@ -1,4 +1,4 @@
-# My Best Friend v3.7.3
+# My Best Friend v3.7.4
 
 ## Friend Design Sprint 2
 
@@ -21,8 +21,15 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=370`
 - Friend Form opens from the Form row inside Profile
 
 
-## v3.7.3 In-place Voice & Accordion Profile
+## v3.7.4 In-place Voice & Accordion Profile
 - Voice専用画面を廃止し、Home右下のマイクから直接音声認識
 - マイクを標準的なSVGアイコンへ変更
 - ProfileをFriend / きみのことのアコーディオンUIへ変更
 - Profile内の文字サイズを統一
+
+
+## v3.7.4
+- Voice button is orange while idle and green only while listening.
+- Home comment card is fixed above the microphone and navigation so it remains visible.
+- Removed the extra “フレンドの姿を見る” button from Form details.
+- Profile scrolling was rebuilt so “少し苦手なこと” can always be reached.

@@ -3618,3 +3618,94 @@ body.sheet-open { overflow: hidden; }
     font-size: 15px !important;
   }
 }
+
+
+/* =========================================================
+   v3.7.4 — Home Voice State, Visible Comment, Profile Scroll
+   ========================================================= */
+
+/* Voice stays warm orange at rest and becomes green only while listening. */
+.floating-voice-button {
+  color: #fff !important;
+  background: linear-gradient(180deg, #ffb457 0%, #ff8b2f 100%) !important;
+  border-color: rgba(255,255,255,.82) !important;
+  box-shadow:
+    0 10px 24px rgba(185,105,38,.26),
+    inset 0 1px 0 rgba(255,255,255,.42) !important;
+}
+.floating-voice-button.is-listening {
+  color: #fff !important;
+  background: linear-gradient(180deg, #62cfb0 0%, #36aa88 100%) !important;
+  box-shadow:
+    0 0 0 7px rgba(79,190,157,.15),
+    0 10px 25px rgba(43,139,110,.26) !important;
+}
+
+/* Keep the Home comment visible above the voice button and fixed dock. */
+.quiet-home-scene .home-message.card {
+  position: fixed !important;
+  z-index: 94 !important;
+  left: max(16px, env(safe-area-inset-left)) !important;
+  right: max(16px, env(safe-area-inset-right)) !important;
+  bottom: calc(136px + env(safe-area-inset-bottom)) !important;
+  width: auto !important;
+  max-width: 700px !important;
+  margin: 0 auto !important;
+  min-height: 58px !important;
+  padding: 13px 18px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: clamp(16px, 4.2vw, 20px) !important;
+  line-height: 1.45 !important;
+}
+.quiet-home-scene .floating-voice-button {
+  bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+}
+.quiet-home-scene {
+  padding-bottom: calc(210px + env(safe-area-inset-bottom)) !important;
+}
+
+/* The Profile is a normal scrolling document, not a one-screen grid. */
+body[data-screen="profile-wrap"] {
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+}
+body[data-screen="profile-wrap"] .app-shell {
+  height: auto !important;
+  min-height: 100svh !important;
+  overflow: visible !important;
+}
+body[data-screen="profile-wrap"] .screen {
+  height: auto !important;
+  min-height: calc(100svh - 82px - var(--safe-top)) !important;
+  overflow: visible !important;
+}
+.accordion-profile-wrap {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding-bottom: calc(150px + env(safe-area-inset-bottom)) !important;
+}
+.accordion-profile-book,
+.profile-friend-section,
+.profile-you-section {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.profile-you-section {
+  margin-bottom: 24px !important;
+}
+
+@media (max-height: 760px) {
+  .quiet-home-scene .home-message.card {
+    bottom: calc(126px + env(safe-area-inset-bottom)) !important;
+    min-height: 52px !important;
+    padding: 10px 14px !important;
+    font-size: 15px !important;
+  }
+  .quiet-home-scene .floating-voice-button {
+    bottom: calc(69px + env(safe-area-inset-bottom)) !important;
+  }
+}

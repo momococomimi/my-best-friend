@@ -1445,7 +1445,6 @@ window.MBFProfile = (() => {
       </button>
       <div class="profile-accordion-panel" hidden>
         <p>${value}</p>
-        ${id === 'form' ? '<button class="profile-form-open" id="profileFormLink" type="button">フレンドの姿を見る</button>' : ''}
       </div>
     </div>`;
   }
@@ -1475,8 +1474,6 @@ window.MBFProfile = (() => {
         panel.hidden = open;
       });
     });
-    const formLink = document.getElementById('profileFormLink');
-    if (formLink) formLink.addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
     bindNoteButtons(data);
   }
 

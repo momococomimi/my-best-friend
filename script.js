@@ -1072,13 +1072,44 @@ window.MBFHome = (() => {
         <div class="home-message card" aria-live="polite">
           <div id="homeComment">${escapeHtml(comments[0])}</div>
         </div>
-        <div class="home-menu">
-          <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
-          <button class="nav-button message" id="messageBtn"><span>💬<b>Message</b><span class="nav-sub">文字ではなす</span></span></button>
-          <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
-          <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
-          <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Form</b><span class="nav-sub">フレンドの姿</span></span></button>
-          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
+        <nav class="home-bottom-dock" aria-label="メインメニュー">
+          <button class="dock-item is-current" type="button" aria-current="page" aria-label="ホーム">
+            <span class="dock-icon" aria-hidden="true">⌂</span><span>Home</span>
+          </button>
+          <button class="dock-item" id="talkDockBtn" type="button" aria-label="話す">
+            <span class="dock-icon" aria-hidden="true">◌</span><span>Talk</span>
+          </button>
+          <button class="dock-item" id="memoryBtn" type="button" aria-label="思い出">
+            <span class="dock-icon" aria-hidden="true">▤</span><span>Memory</span>
+          </button>
+          <button class="dock-item" id="profileBtn" type="button" aria-label="プロフィール">
+            <span class="dock-icon" aria-hidden="true">◯</span><span>Profile</span>
+          </button>
+          <button class="dock-item" id="moreDockBtn" type="button" aria-label="その他">
+            <span class="dock-icon" aria-hidden="true">•••</span><span>More</span>
+          </button>
+        </nav>
+        <div class="home-sheet" id="talkSheet" hidden>
+          <button class="sheet-backdrop" type="button" data-close-sheet aria-label="閉じる"></button>
+          <div class="sheet-card" role="dialog" aria-modal="true" aria-label="話し方を選ぶ">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2>どうやって話す？</h2>
+            <div class="sheet-actions">
+              <button class="sheet-action voice" id="voiceBtn" type="button"><span>🎙</span><strong>Voice</strong><small>声ではなす</small></button>
+              <button class="sheet-action message" id="messageBtn" type="button"><span>💬</span><strong>Message</strong><small>文字ではなす</small></button>
+            </div>
+          </div>
+        </div>
+        <div class="home-sheet" id="moreSheet" hidden>
+          <button class="sheet-backdrop" type="button" data-close-sheet aria-label="閉じる"></button>
+          <div class="sheet-card" role="dialog" aria-modal="true" aria-label="その他のメニュー">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2>ふわもこのこと</h2>
+            <div class="sheet-actions sheet-actions-three">
+              <button class="sheet-action appearance" id="appearanceBtn" type="button"><span>✨</span><strong>Form</strong><small>フレンドの姿</small></button>
+              <button class="sheet-action guardian" id="guardianBtn" type="button"><span>🛡</span><strong>Guardian</strong><small>見守り設定</small></button>
+            </div>
+          </div>
         </div>
       </section>
     `);
@@ -1089,6 +1120,19 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
+    const openSheet = (id) => {
+      document.querySelectorAll('.home-sheet').forEach(sheet => { sheet.hidden = true; });
+      const sheet = document.getElementById(id);
+      if (sheet) sheet.hidden = false;
+      document.body.classList.toggle('sheet-open', Boolean(sheet));
+    };
+    const closeSheets = () => {
+      document.querySelectorAll('.home-sheet').forEach(sheet => { sheet.hidden = true; });
+      document.body.classList.remove('sheet-open');
+    };
+    document.getElementById('talkDockBtn').addEventListener('click', () => openSheet('talkSheet'));
+    document.getElementById('moreDockBtn').addEventListener('click', () => openSheet('moreSheet'));
+    document.querySelectorAll('[data-close-sheet]').forEach(btn => btn.addEventListener('click', closeSheets));
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(MBFStorage.load()));
     document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(MBFStorage.load()));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
@@ -1705,7 +1749,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=3.4.2').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=3.7.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

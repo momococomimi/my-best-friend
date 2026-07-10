@@ -1,13 +1,6 @@
-# Architecture — v3.6.1
+# Architecture v3.7.0
 
-## FriendState
-
-フレンドは世界に一人だけです。Home、Form、Message、Voice、Memoryは同じ保存状態を参照します。
-
-## Living Friend
-
-`MBFLiving` が呼吸、まばたき、視線、静かな再会を担当します。表示画面を離れる時はタイマーを停止し、画面ごとの別人格を作りません。
-
-## Accessibility
-
-`prefers-reduced-motion` を尊重し、動きを減らす設定では連続アニメーションを停止します。
+HomeはFriendを主役にするため、主要ナビゲーションを固定ボトムドックへ集約する。
+TalkはVoice / Message、MoreはForm / Guardianをボトムシートで選択する。
+Friendの状態は引き続き単一のFriendStateを全画面で参照する。
+顔の表現はCSSの目・口・頬で構成し、フォームやMoodの状態クラスと共存する。

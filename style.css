@@ -2993,3 +2993,173 @@ body[data-rhythm="evening"] .home-scene .appearance-stage.home-appearance .light
     animation: none !important;
   }
 }
+
+/* =========================================================
+   v3.7.0 — Friend Design Sprint 2
+   Quiet bottom navigation + expressive facial detail
+   ========================================================= */
+
+/* The former six large tiles are replaced by one quiet navigation dock. */
+.home-scene {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+.home-bottom-dock {
+  position: fixed;
+  z-index: 80;
+  left: max(16px, env(safe-area-inset-left));
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  padding: 8px 7px;
+  border: 1px solid rgba(255,255,255,.68);
+  border-radius: 27px;
+  background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(246,252,255,.70));
+  -webkit-backdrop-filter: blur(22px) saturate(1.12);
+  backdrop-filter: blur(22px) saturate(1.12);
+  box-shadow: 0 18px 42px rgba(49,83,112,.18), inset 0 1px 0 rgba(255,255,255,.82);
+}
+.dock-item {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(48,77,95,.66);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 1px;
+  font: inherit;
+  font-size: clamp(8px, 2.15vw, 11px);
+  font-weight: 850;
+  letter-spacing: .01em;
+  transition: transform .16s ease, background .16s ease, color .16s ease;
+}
+.dock-item .dock-icon {
+  display: grid;
+  place-items: center;
+  min-height: 25px;
+  font-size: clamp(19px, 5vw, 24px);
+  line-height: 1;
+  font-weight: 900;
+}
+.dock-item.is-current {
+  color: #3e8eea;
+  background: rgba(108,176,247,.11);
+}
+.dock-item:active { transform: scale(.92); background: rgba(89,151,213,.10); }
+
+/* Bottom sheets keep secondary choices available without crowding Home. */
+.home-sheet[hidden] { display: none !important; }
+.home-sheet { position: fixed; inset: 0; z-index: 140; display: grid; align-items: end; }
+.sheet-backdrop { position: absolute; inset: 0; border: 0; background: rgba(28,49,63,.20); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.sheet-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 12px 20px calc(22px + env(safe-area-inset-bottom));
+  border-radius: 30px 30px 0 0;
+  background: linear-gradient(160deg, rgba(255,255,255,.97), rgba(244,251,255,.94));
+  box-shadow: 0 -20px 55px rgba(36,68,90,.18);
+  animation: sheetRise .28s cubic-bezier(.2,.78,.25,1);
+}
+.sheet-handle { width: 42px; height: 5px; border-radius: 99px; background: rgba(57,83,98,.18); margin: 0 auto 12px; }
+.sheet-card h2 { margin: 2px 0 16px; text-align: center; font-size: clamp(20px, 5.5vw, 28px); color: #173a4b; }
+.sheet-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+.sheet-action {
+  border: 1px solid rgba(255,255,255,.55);
+  min-height: 112px;
+  border-radius: 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 9px 0 rgba(105,87,60,.17), 0 16px 24px rgba(44,79,102,.10), inset 0 1px 0 rgba(255,255,255,.28);
+  font: inherit;
+}
+.sheet-action > span { font-size: 28px; }
+.sheet-action strong { font-size: 18px; }
+.sheet-action small { font-size: 11px; font-weight: 800; opacity: .92; }
+.sheet-action.voice { background: linear-gradient(180deg,#ffb052,#ff8b2d); }
+.sheet-action.message { background: linear-gradient(180deg,#67d3bd,#41b99e); }
+.sheet-action.appearance { background: linear-gradient(180deg,#83d8ff,#6d9fff); }
+.sheet-action.guardian { background: linear-gradient(180deg,#ff86ae,#ee5d8c); }
+.sheet-action:active { transform: translateY(3px); box-shadow: 0 5px 0 rgba(105,87,60,.15), 0 9px 15px rgba(44,79,102,.08); }
+body.sheet-open { overflow: hidden; }
+
+/* Softer, ownable facial language: navy glass eyes with a tiny living glint. */
+.light-drop .drop-eye {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 36% 25%, rgba(255,255,255,.36) 0 5%, transparent 6%),
+    linear-gradient(155deg, #244c60 0%, #102f40 58%, #092737 100%) !important;
+  border: 1px solid rgba(8,36,50,.10);
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,.14), inset -1px -2px 3px rgba(3,23,34,.20), 0 1px 2px rgba(38,72,89,.12);
+}
+.light-drop .drop-eye::after {
+  content: "";
+  position: absolute;
+  width: 18%;
+  aspect-ratio: 1;
+  left: 25%;
+  top: 17%;
+  border-radius: 50%;
+  background: rgba(255,255,255,.70);
+  filter: blur(.1px);
+  opacity: .72;
+  transition: opacity .2s ease;
+}
+.appearance-stage.mood-sleepy .drop-eye::after,
+.light-drop.living-blink .drop-eye::after,
+.light-drop.living-natural-blink .drop-eye::after { opacity: 0; }
+
+/* The mouth is no longer a flat black shape. */
+.light-drop .drop-mouth {
+  overflow: hidden;
+  background: linear-gradient(180deg, #173f52 0%, #092b3d 72%, #072535 100%) !important;
+  border: 1px solid rgba(5,31,44,.10);
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.10), inset 0 -3px 5px rgba(1,20,31,.20), 0 1px 2px rgba(35,70,88,.10);
+}
+.light-drop .drop-mouth::after {
+  content: "";
+  position: absolute;
+  left: 24%;
+  right: 24%;
+  bottom: 12%;
+  height: 17%;
+  border-radius: 50%;
+  background: rgba(251,139,166,.32);
+  filter: blur(.2px);
+}
+
+/* A small facial plane keeps the features warm without becoming a mask. */
+.light-drop .drop-core {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.30), transparent 52%),
+    rgba(255,255,255,.14) !important;
+  box-shadow: inset 0 0 28px rgba(255,255,255,.08);
+}
+.light-drop .drop-cheek {
+  background: radial-gradient(ellipse at center, rgba(255,126,163,.82), rgba(255,151,181,.64) 55%, rgba(255,164,190,0) 76%) !important;
+  filter: blur(.15px);
+}
+
+@keyframes sheetRise { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (max-height: 760px) {
+  .home-bottom-dock { min-height: 64px; border-radius: 23px; }
+  .home-scene { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-card { animation: none; }
+  .dock-item, .sheet-action { transition: none; }
+}

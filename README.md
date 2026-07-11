@@ -49,3 +49,11 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 ## v4.0.1 Scrollable Message
 - Message history scrolls independently while the input composer remains visible.
 - Every non-Home screen uses a minimal left-arrow button to return to Home.
+
+## v4.1.0 Friend Conversation Room
+- 画面上の恒常的なアプリタイトル表示を廃止
+- Memory冒頭に「いつか 大きくなる、キミへの贈りもの。」を配置
+- Messageをフレンドが常駐する会話空間へ刷新
+- 会話履歴はスクロール、入力欄は固定
+- 考え中・返答時の小さなフレンド反応を追加
+- ProfileのForm表記から「〜の姿」を削除

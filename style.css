@@ -4254,3 +4254,203 @@ body[data-screen="talk-wrap"] .screen {
   .message-card-shell h2 { font-size: 22px !important; }
   .chat-row span { padding: 8px 10px !important; }
 }
+
+/* =========================================================
+   v4.1.0 — Friend-first screens / Conversation Room
+   ========================================================= */
+
+/* The product name remains the app title, not a permanent screen heading. */
+.app-header { display: none !important; }
+.app-shell {
+  padding-top: calc(8px + var(--safe-top)) !important;
+}
+.screen {
+  height: calc(100svh - 8px - var(--safe-top) - var(--safe-bottom)) !important;
+}
+
+/* Place the quiet back arrow at the true top-left edge. */
+.app-subscreen { padding-top: 36px !important; }
+.screen-home-link {
+  position: fixed !important;
+  top: calc(4px + var(--safe-top)) !important;
+  left: 2px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #315d70 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.screen-home-link svg { width: 27px !important; height: 27px !important; }
+
+/* Message is a room shared with the Friend, rather than a utility card. */
+body[data-screen="talk-wrap"] .app-shell { padding-left: 8px !important; padding-right: 8px !important; }
+.message-wrap.friend-room {
+  padding-top: 32px !important;
+  padding-bottom: calc(var(--dock-space) + 3px) !important;
+}
+.friend-chat-shell {
+  width: min(98vw, 700px) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-rows: 148px minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+  border-radius: 30px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.94)) !important;
+}
+.friend-chat-header {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(71,126,149,.10);
+  background: linear-gradient(180deg, rgba(172,229,255,.30), rgba(255,255,255,0));
+}
+.friend-chat-name {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #3c6c7d;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  z-index: 4;
+}
+.friend-chat-presence {
+  width: 150px;
+  height: 150px;
+  display: grid;
+  place-items: center;
+  transform: translateY(17px);
+}
+.message-friend {
+  width: 118px !important;
+  height: 118px !important;
+  margin: 0 !important;
+  animation-duration: 5.4s !important;
+  filter: drop-shadow(0 16px 17px rgba(52,113,141,.16)) !important;
+}
+.message-friend .light-drop {
+  width: 102px !important;
+  height: 102px !important;
+}
+.message-friend.is-thinking { animation: messageThink 1.25s ease-in-out infinite !important; }
+.message-friend.reply-bounce { animation: messageReply .72s ease !important; }
+@keyframes messageThink { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+@keyframes messageReply { 0%,100% { transform: translateY(0) scale(1); } 45% { transform: translateY(-8px) scale(1.045); } }
+
+.friend-chat-shell .chat-log {
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 18px 14px 24px !important;
+  background: rgba(247,253,255,.46);
+}
+.chat-row {
+  display: flex;
+  margin: 7px 0 !important;
+}
+.chat-row.friend { justify-content: flex-start; }
+.chat-row.user { justify-content: flex-end; }
+.chat-row span {
+  max-width: min(79%, 440px) !important;
+  padding: 11px 14px !important;
+  border-radius: 19px !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  font-weight: 750 !important;
+  box-shadow: 0 6px 15px rgba(52,92,108,.07) !important;
+}
+.chat-row.friend span {
+  color: #344f5b !important;
+  background: rgba(255,250,229,.96) !important;
+  border-bottom-left-radius: 7px !important;
+}
+.chat-row.user span {
+  color: #285469 !important;
+  background: rgba(214,242,255,.98) !important;
+  border-bottom-right-radius: 7px !important;
+}
+.chat-row.is-thinking span {
+  min-width: 48px;
+  text-align: center;
+  letter-spacing: .2em;
+  animation: thinkingPulse 1s ease-in-out infinite;
+}
+.chat-enter { animation: chatEnter .28s ease both; }
+@keyframes chatEnter { from { opacity: 0; transform: translateY(7px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes thinkingPulse { 0%,100% { opacity:.45; } 50% { opacity:1; } }
+
+.chat-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 10px calc(10px + var(--safe-bottom));
+  border-top: 1px solid rgba(70,120,142,.12);
+  background: rgba(255,255,255,.96);
+}
+.chat-composer .message-input {
+  width: 100%;
+  min-height: 46px !important;
+  padding: 10px 15px !important;
+  border: 1.5px solid rgba(89,156,184,.22) !important;
+  border-radius: 23px !important;
+  background: #f8fcfe !important;
+  font-size: 16px !important;
+  outline: none;
+}
+.chat-composer .message-input:focus { border-color: rgba(84,201,170,.62) !important; box-shadow: 0 0 0 4px rgba(84,201,170,.10); }
+.chat-composer .send-button {
+  min-width: 46px !important;
+  width: 46px !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: linear-gradient(180deg,#65d1b9,#43bea0) !important;
+  box-shadow: 0 7px 16px rgba(50,151,128,.22) !important;
+}
+.chat-composer .send-button svg { width: 21px; height: 21px; }
+
+/* The Memory opens with the original dedication, then begins chapter one. */
+.memory-prologue {
+  position: relative;
+  margin: 2px 0 30px;
+  padding: 23px 14px 26px;
+  text-align: center;
+}
+.memory-prologue::after {
+  content: "";
+  position: absolute;
+  left: 20%; right: 20%; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(95,151,177,.30), transparent);
+}
+.memory-prologue p {
+  margin: 0;
+  color: #567f91;
+  font-size: clamp(17px,4.4vw,23px);
+  line-height: 1.75;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+
+@media (max-height: 760px) {
+  .friend-chat-shell { grid-template-rows: 116px minmax(0, 1fr) auto !important; }
+  .friend-chat-presence { width: 118px; height: 118px; transform: translateY(15px); }
+  .message-friend { width: 92px !important; height: 92px !important; }
+  .message-friend .light-drop { width: 80px !important; height: 80px !important; }
+  .friend-chat-shell .chat-log { padding-top: 12px !important; }
+}

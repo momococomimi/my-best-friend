@@ -1280,46 +1280,90 @@ window.MBFVoice = (() => {
 })();
 
 window.MBFMessage = (() => {
+  let replying = false;
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  function render(data) {
-    data.conversations ||= [];
-    const recent = data.conversations.map(item => `
+  function conversationMarkup(data) {
+    const rows = (data.conversations || []).map(item => `
       <div class="chat-row user"><span>${esc(item.user)}</span></div>
       <div class="chat-row friend"><span>${esc(item.friend)}</span></div>`).join('');
+    return rows || `<div class="chat-row friend"><span>今日は、どんな一日だった？</span></div>`;
+  }
+  function scrollToLatest() {
+    const log = document.getElementById('chatLog');
+    if (log) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  }
+  function render(data) {
+    data = MBFStorage.load();
+    const appearance = MBFAppearance.current(data);
+    const mood = data.mood?.current || 'calm';
     MBFUi.set(`
-      <section class="talk-wrap message-wrap app-subscreen">
+      <section class="talk-wrap message-wrap friend-room app-subscreen">
         ${MBFNav.homeButton()}
-        <article class="talk-card card message-card-shell">
-          <div class="talk-label">Message</div>
-          <h2>文字ではなす</h2>
-          <div class="chat-log" id="chatLog">
-            ${recent || `<div class="chat-row friend"><span>ここに書いてくれたら、ぼくが受け止めるよ。</span></div>`}
+        <article class="friend-chat-shell card">
+          <header class="friend-chat-header">
+            <div class="friend-chat-name">${esc(data.friendName || 'フレンド')}</div>
+            <div class="friend-chat-presence" aria-hidden="true">
+              ${MBFAppearance.renderFriendShape(appearance, `message-friend mood-${mood}`)}
+            </div>
+          </header>
+          <div class="chat-log" id="chatLog" aria-live="polite">
+            ${conversationMarkup(data)}
           </div>
-          <div class="chat-input-row">
-            <input id="messageInput" class="message-input" maxlength="80" placeholder="メッセージ" />
-            <button id="sendMessage" class="send-button">送る</button>
-          </div>
+          <form class="chat-composer" id="messageForm">
+            <input id="messageInput" class="message-input" maxlength="180" placeholder="メッセージを入力…" autocomplete="off" />
+            <button id="sendMessage" class="send-button" type="submit" aria-label="送信">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"></path></svg>
+            </button>
+          </form>
         </article>
         ${MBFNav.markup('message')}
       </section>
     `);
     MBFNav.bind(data);
-    const chatLog = document.getElementById('chatLog');
-    requestAnimationFrame(() => { chatLog.scrollTop = chatLog.scrollHeight; });
-    document.getElementById('sendMessage').addEventListener('click', () => send(data));
-    document.getElementById('messageInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') send(data); });
+    MBFAppearance.bindFriendTouch(document.querySelector('.message-friend'));
+    scrollToLatest();
+    const form = document.getElementById('messageForm');
+    form.addEventListener('submit', ev => { ev.preventDefault(); send(data); });
+    document.getElementById('messageInput').focus({ preventScroll: true });
+  }
+  function appendBubble(kind, text, extra = '') {
+    const log = document.getElementById('chatLog');
+    if (!log) return null;
+    const row = document.createElement('div');
+    row.className = `chat-row ${kind} ${extra}`.trim();
+    row.innerHTML = `<span>${esc(text)}</span>`;
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    return row;
   }
   function send(data) {
+    if (replying) return;
     const input = document.getElementById('messageInput');
     const value = input.value.trim();
     if (!value) return;
+    input.value = '';
+    appendBubble('user', value, 'chat-enter');
     const result = MBFSoul.onMessage(data, value);
     data = result.data;
-    const reply = result.reply;
-    data.conversations ||= [];
-    data.conversations.push({ user: value, friend: reply, actionType: result.actionType, createdAt: new Date().toISOString() });
-    MBFStorage.save(data);
-    render(data);
+    replying = true;
+    const thinking = appendBubble('friend', '…', 'is-thinking chat-enter');
+    const friend = document.querySelector('.message-friend');
+    if (friend) friend.classList.add('is-thinking');
+    window.setTimeout(() => {
+      thinking?.remove();
+      if (friend) friend.classList.remove('is-thinking');
+      const reply = result.reply;
+      data.conversations ||= [];
+      data.conversations.push({ user: value, friend: reply, actionType: result.actionType, createdAt: new Date().toISOString() });
+      MBFStorage.save(data);
+      appendBubble('friend', reply, 'chat-enter');
+      if (friend) {
+        friend.classList.add('face-happy', 'reply-bounce');
+        window.setTimeout(() => friend.classList.remove('face-happy', 'reply-bounce'), 900);
+      }
+      replying = false;
+      input.focus({ preventScroll: true });
+    }, 650);
   }
   return { render };
 })();
@@ -1413,7 +1457,7 @@ window.MBFProfile = (() => {
     const identity = window.MBFIdentity ? MBFIdentity.description(data) : 'やさしく、ゆっくり寄り添う。';
     const promise = '怒らない。責めない。見捨てない。大切なことを守る。';
     const friendRows = [
-      ['form', 'Form', `${esc(appearance.name || '光のしずく')}の姿`],
+      ['form', 'Form', esc(appearance.name || '光のしずく')],
       ['identity', 'Identity', esc(identity)],
       ['relationship', 'Relationship', esc(soul.relationshipLabel)],
       ['energy', 'Energy', `${Math.round(soul.energy)}%`],
@@ -1885,6 +1929,9 @@ window.MBFMemory = (() => {
       <section class="memory-wrap app-subscreen">
         ${MBFNav.homeButton()}
         <article class="book-page">
+          <section class="memory-prologue" aria-label="このMemoryについて">
+            <p>いつか 大きくなる、キミへの贈りもの。</p>
+          </section>
           <div class="chapter-label">${escapeHtml(memory.chapter || '第一章')}</div>
           <h2 class="chapter-title">${escapeHtml(memory.title || 'はじめて親友になった日')}</h2>
           <div class="memory-date">📅 ${escapeHtml(memory.dateText || '')}</div>
@@ -1904,7 +1951,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=4.0.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=4.1.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

@@ -33,3 +33,14 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=370`
 - Home comment card is fixed above the microphone and navigation so it remains visible.
 - Removed the extra “フレンドの姿を見る” button from Form details.
 - Profile scrolling was rebuilt so “少し苦手なこと” can always be reached.
+
+
+## v4.0.0 Living Friend — Layout Foundation
+- Homeでフレンドが見切れないよう、表示領域とサイズを再設計
+- フレンドと芽の距離を調整し、浮遊するフレンド／地面から育つ芽を明確化
+- Home以外の画面左上に小さな「メインへ」を追加
+- Memoryを最後まで読める縦スクロール構成へ修正
+- Profileのアコーディオン展開時も最後まで閲覧可能
+- 固定ナビゲーションと本文の重なりを解消
+
+GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`

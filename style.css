@@ -3995,3 +3995,154 @@ body[data-screen="home-scene"] .screen {
   .grounded-sprout,
   .quiet-voice-item.is-listening { animation: none !important; }
 }
+
+/* v4.0.0 — Stable navigation, unclipped Home, and readable Memory */
+:root {
+  --dock-space: calc(102px + env(safe-area-inset-bottom));
+}
+
+/* Keep the Home scene inside the visible iPhone viewport. */
+body[data-screen="home-scene"] .app-shell {
+  height: 100svh !important;
+  min-height: 100svh !important;
+  overflow: hidden !important;
+}
+body[data-screen="home-scene"] .screen {
+  height: calc(100svh - 78px - var(--safe-top) - var(--safe-bottom)) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.quiet-home-scene {
+  height: 100% !important;
+  min-height: 0 !important;
+  padding-bottom: var(--dock-space) !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+}
+.home-world-stage {
+  min-height: 320px !important;
+  overflow: hidden !important;
+}
+.home-world-stage .appearance-stage.home-appearance {
+  top: 2% !important;
+  width: min(72vw, 350px) !important;
+  height: min(72vw, 350px) !important;
+}
+.home-world-stage .appearance-stage.home-appearance .light-drop {
+  width: min(54vw, 250px) !important;
+  height: min(54vw, 250px) !important;
+}
+.friend-ground-shadow {
+  top: 54% !important;
+}
+.grounded-sprout {
+  top: 64% !important;
+  transform: scale(.9) !important;
+}
+.quiet-home-scene .home-message.card {
+  margin-bottom: 0 !important;
+  min-height: 60px !important;
+  flex-shrink: 0 !important;
+}
+
+/* A dependable Home affordance for every non-Home screen. */
+.app-subscreen {
+  position: relative !important;
+  padding-top: 48px !important;
+}
+.screen-home-link {
+  position: absolute !important;
+  z-index: 40 !important;
+  top: 4px !important;
+  left: 4px !important;
+  min-height: 38px !important;
+  padding: 7px 12px 7px 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  border-radius: 999px !important;
+  color: #426875 !important;
+  background: rgba(255,255,255,.70) !important;
+  box-shadow: 0 8px 20px rgba(47,79,93,.10) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(14px) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+}
+.screen-home-link svg { width: 18px !important; height: 18px !important; }
+.screen-home-link:active { transform: scale(.96) !important; }
+
+/* Memory is intentionally scrollable and never hidden by the fixed dock. */
+body[data-screen="memory-wrap"] {
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+body[data-screen="memory-wrap"] .app-shell {
+  height: auto !important;
+  min-height: 100svh !important;
+  overflow: visible !important;
+}
+body[data-screen="memory-wrap"] .screen {
+  height: auto !important;
+  min-height: calc(100svh - 78px - var(--safe-top)) !important;
+  overflow: visible !important;
+}
+.memory-wrap.app-subscreen {
+  height: auto !important;
+  min-height: calc(100svh - 88px - var(--safe-top)) !important;
+  display: block !important;
+  overflow: visible !important;
+  padding-bottom: calc(var(--dock-space) + 42px) !important;
+}
+.memory-wrap .book-page {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  margin-bottom: 24px !important;
+}
+
+/* Profile can grow as accordion panels open. */
+body[data-screen="profile-wrap"] {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+body[data-screen="profile-wrap"] .app-shell,
+body[data-screen="profile-wrap"] .screen {
+  height: auto !important;
+  min-height: 100svh !important;
+  overflow: visible !important;
+}
+.accordion-profile-wrap.app-subscreen {
+  height: auto !important;
+  min-height: calc(100svh - 88px - var(--safe-top)) !important;
+  overflow: visible !important;
+  padding-bottom: calc(var(--dock-space) + 30px) !important;
+}
+.accordion-profile-book {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Message and Guardian remain reachable above the shared dock. */
+.message-wrap.app-subscreen,
+.guardian-wrap.app-subscreen,
+.appearance-wrap.app-subscreen {
+  padding-bottom: calc(var(--dock-space) + 24px) !important;
+}
+
+@media (max-height: 760px) {
+  .home-world-stage { min-height: 260px !important; }
+  .home-world-stage .appearance-stage.home-appearance {
+    top: 0 !important;
+    width: min(62vw, 280px) !important;
+    height: min(62vw, 280px) !important;
+  }
+  .home-world-stage .appearance-stage.home-appearance .light-drop {
+    width: min(45vw, 195px) !important;
+    height: min(45vw, 195px) !important;
+  }
+  .friend-ground-shadow { top: 52% !important; }
+  .grounded-sprout { top: 61% !important; transform: scale(.78) !important; }
+}

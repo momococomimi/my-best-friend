@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '3.6.1',
+      version: '4.0.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -1080,7 +1080,17 @@ window.MBFNav = (() => {
     </nav>`;
   }
 
+  function homeButton() {
+    return `<button class="screen-home-link" data-home-link type="button" aria-label="メイン画面へ戻る">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 11 8-7 8 7"></path><path d="M6.5 10.5V20h11v-9.5"></path></svg>
+      <span>メインへ</span>
+    </button>`;
+  }
+
   function bind(data) {
+    document.querySelectorAll('[data-home-link]').forEach(button => {
+      button.addEventListener('click', () => MBFHome.render(MBFStorage.load()));
+    });
     document.querySelectorAll('[data-quiet-nav]').forEach(button => {
       button.addEventListener('click', () => {
         const latest = MBFStorage.load();
@@ -1098,7 +1108,7 @@ window.MBFNav = (() => {
     });
   }
 
-  return { markup, bind };
+  return { markup, homeButton, bind };
 })();
 
 window.MBFHome = (() => {
@@ -1278,7 +1288,8 @@ window.MBFMessage = (() => {
       <div class="chat-row user"><span>${esc(item.user)}</span></div>
       <div class="chat-row friend"><span>${esc(item.friend)}</span></div>`).join('');
     MBFUi.set(`
-      <section class="talk-wrap message-wrap">
+      <section class="talk-wrap message-wrap app-subscreen">
+        ${MBFNav.homeButton()}
         <article class="talk-card card message-card-shell">
           <div class="talk-label">Message</div>
           <h2>文字ではなす</h2>
@@ -1419,7 +1430,8 @@ window.MBFProfile = (() => {
     ].map(([id,label,value]) => accordionRow(id, label, value, 'you')).join('');
 
     MBFUi.set(`
-      <section class="profile-wrap quiet-profile-wrap accordion-profile-wrap">
+      <section class="profile-wrap quiet-profile-wrap accordion-profile-wrap app-subscreen">
+        ${MBFNav.homeButton()}
         <article class="profile-book quiet-profile-book accordion-profile-book">
           <div class="chapter-label">Profile</div>
 
@@ -1559,7 +1571,8 @@ window.MBFGuardian = (() => {
   function open(data) { data.guardian.passwordHash ? renderLogin(data) : renderSetup(data); }
   function renderSetup(data) {
     MBFUi.set(`
-      <section class="guardian-wrap">
+      <section class="guardian-wrap app-subscreen">
+        ${MBFNav.homeButton()}
         <div class="guardian-card card">
           <div class="guardian-symbol">🔒</div>
           <h2>Guardian</h2>
@@ -1586,7 +1599,7 @@ window.MBFGuardian = (() => {
   }
   function renderLogin(data) {
     MBFUi.set(`
-      <section class="guardian-wrap"><div class="guardian-card card">
+      <section class="guardian-wrap app-subscreen">${MBFNav.homeButton()}<div class="guardian-card card">
         <div class="guardian-symbol">🔒</div><h2>Guardian</h2>
         <p>見守りパスワードを入力してください。</p>
         <input id="guardianPass" class="guardian-input" type="password" autocomplete="current-password" />
@@ -1602,7 +1615,7 @@ window.MBFGuardian = (() => {
   }
   function renderRoom(data) {
     MBFUi.set(`
-      <section class="guardian-wrap"><div class="guardian-card card guardian-room">
+      <section class="guardian-wrap app-subscreen">${MBFNav.homeButton()}<div class="guardian-card card guardian-room">
         <div class="guardian-symbol">🌳</div><h2>Guardian Room</h2>
         <p class="guardian-lead">物語を守り、未来へ受け継ぐ場所</p>
         <div class="guardian-section">
@@ -1719,7 +1732,8 @@ window.MBFAppearance = (() => {
     const appearance = current(data);
     const history = data.friend.appearanceHistory || [];
     MBFUi.set(`
-      <section class="appearance-wrap">
+      <section class="appearance-wrap app-subscreen">
+        ${MBFNav.homeButton()}
         <article class="appearance-book">
           <div class="chapter-label">Friend's Form</div>
           <h2 class="appearance-title">フレンドの姿</h2>
@@ -1867,7 +1881,8 @@ window.MBFMemory = (() => {
     const memory = data.memories.find(m => m.type === memoryType) || data.memories[0];
     const paragraphs = (memory.text || []).map(t => `<p>${escapeHtml(t).replace(/\n/g, '<br>')}</p>`).join('');
     MBFUi.set(`
-      <section class="memory-wrap">
+      <section class="memory-wrap app-subscreen">
+        ${MBFNav.homeButton()}
         <article class="book-page">
           <div class="chapter-label">${escapeHtml(memory.chapter || '第一章')}</div>
           <h2 class="chapter-title">${escapeHtml(memory.title || 'はじめて親友になった日')}</h2>
@@ -1888,7 +1903,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=3.8.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=4.0.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

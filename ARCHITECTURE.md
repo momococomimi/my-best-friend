@@ -25,3 +25,8 @@ Friendの状態は引き続き単一のFriendStateを全画面で参照する。
 - 固定ボトムドックは各画面で共通表示し、本文にはdock分のsafe spaceを確保する。
 - MemoryとProfileは内容量に応じて縦スクロールし、固定高さを持たない。
 - Friendは空中を浮遊し、Sproutは地面に根付く独立した世界オブジェクトとして描画する。
+
+
+## v4.0.1 Navigation and Message
+- Secondary screens expose one minimal back arrow whose destination is always Home.
+- Message uses a fixed shell: header and composer remain visible while only chat history scrolls.

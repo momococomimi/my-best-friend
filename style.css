@@ -4146,3 +4146,111 @@ body[data-screen="profile-wrap"] .screen {
   .friend-ground-shadow { top: 52% !important; }
   .grounded-sprout { top: 61% !important; transform: scale(.78) !important; }
 }
+
+/* =========================================================
+   v4.0.1 — Scrollable Message / Minimal Back Arrow
+   ========================================================= */
+
+/* The only secondary-screen affordance is a quiet back arrow. */
+.app-subscreen {
+  padding-top: 44px !important;
+}
+.screen-home-link {
+  top: 2px !important;
+  left: 2px !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  border-radius: 50% !important;
+}
+.screen-home-link svg {
+  width: 23px !important;
+  height: 23px !important;
+}
+
+/* Message behaves like a real chat: history scrolls, composer stays visible. */
+body[data-screen="talk-wrap"] {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+body[data-screen="talk-wrap"] .app-shell {
+  height: 100svh !important;
+  min-height: 100svh !important;
+  overflow: hidden !important;
+}
+body[data-screen="talk-wrap"] .screen {
+  height: calc(100svh - 82px - var(--safe-top) - var(--safe-bottom)) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.message-wrap.app-subscreen {
+  height: 100% !important;
+  min-height: 0 !important;
+  padding-bottom: calc(var(--dock-space) + 4px) !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+.message-card-shell {
+  width: min(94vw, 640px) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 15px 14px 12px !important;
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+.message-card-shell .talk-label,
+.message-card-shell h2 {
+  flex: 0 0 auto !important;
+}
+.message-card-shell h2 {
+  margin-bottom: 2px !important;
+}
+.chat-log {
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth;
+  padding: 8px 3px 14px !important;
+  scrollbar-width: none;
+}
+.chat-log::-webkit-scrollbar { display: none; }
+.chat-input-row {
+  position: relative !important;
+  z-index: 3 !important;
+  flex: 0 0 auto !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(91, 143, 164, .14) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.94) 22%) !important;
+}
+.message-input {
+  min-height: 48px !important;
+}
+.send-button {
+  min-width: 62px !important;
+  min-height: 48px !important;
+}
+
+@media (max-height: 760px) {
+  .app-subscreen { padding-top: 40px !important; }
+  .screen-home-link {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+  .message-card-shell {
+    padding: 11px 11px 9px !important;
+    gap: 5px !important;
+  }
+  .message-card-shell h2 { font-size: 22px !important; }
+  .chat-row span { padding: 8px 10px !important; }
+}

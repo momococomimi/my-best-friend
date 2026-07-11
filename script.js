@@ -1082,8 +1082,7 @@ window.MBFNav = (() => {
 
   function homeButton() {
     return `<button class="screen-home-link" data-home-link type="button" aria-label="メイン画面へ戻る">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 11 8-7 8 7"></path><path d="M6.5 10.5V20h11v-9.5"></path></svg>
-      <span>メインへ</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"></path></svg>
     </button>`;
   }
 
@@ -1284,7 +1283,7 @@ window.MBFMessage = (() => {
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function render(data) {
     data.conversations ||= [];
-    const recent = data.conversations.slice(-4).map(item => `
+    const recent = data.conversations.map(item => `
       <div class="chat-row user"><span>${esc(item.user)}</span></div>
       <div class="chat-row friend"><span>${esc(item.friend)}</span></div>`).join('');
     MBFUi.set(`
@@ -1305,6 +1304,8 @@ window.MBFMessage = (() => {
       </section>
     `);
     MBFNav.bind(data);
+    const chatLog = document.getElementById('chatLog');
+    requestAnimationFrame(() => { chatLog.scrollTop = chatLog.scrollHeight; });
     document.getElementById('sendMessage').addEventListener('click', () => send(data));
     document.getElementById('messageInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') send(data); });
   }

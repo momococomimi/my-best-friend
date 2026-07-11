@@ -44,3 +44,8 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=370`
 - 固定ナビゲーションと本文の重なりを解消
 
 GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
+
+
+## v4.0.1 Scrollable Message
+- Message history scrolls independently while the input composer remains visible.
+- Every non-Home screen uses a minimal left-arrow button to return to Home.

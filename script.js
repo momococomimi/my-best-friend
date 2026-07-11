@@ -1133,6 +1133,11 @@ window.MBFHome = (() => {
           <span class="ambient-mote mote-three">✧</span>
           <span class="ambient-leaf leaf-one"></span>
           <span class="ambient-leaf leaf-two"></span>
+          <span class="distant-hill hill-left"></span>
+          <span class="distant-hill hill-right"></span>
+          <span class="near-meadow"></span>
+          <span class="grass-tuft grass-one"></span>
+          <span class="grass-tuft grass-two"></span>
         </div>
         <div class="home-world-stage">
           ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
@@ -1310,7 +1315,6 @@ window.MBFMessage = (() => {
         ${MBFNav.homeButton()}
         <article class="friend-chat-shell card">
           <header class="friend-chat-header">
-            <div class="friend-chat-name">${esc(data.friendName || 'フレンド')}</div>
             <div class="friend-chat-presence" aria-hidden="true">
               ${MBFAppearance.renderFriendShape(appearance, `message-friend mood-${mood}`)}
             </div>

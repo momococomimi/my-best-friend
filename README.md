@@ -78,9 +78,15 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Message上部のFriendをコンパクト化し、会話領域を拡大
 - 返信待ちの「…」に穏やかなアニメーションを追加
 
-## v5.0.0 Living Friend
+## v5.1.0 Living Friend
 - Homeのコメントカードを中央に安定配置
 - コメント欄のフレンド顔・アイコンを使用しない設計を固定
 - フレンド自身が目の前で話しているような「声のカード」へ調整
 - フレンドの静かな浮遊と、地面に根付く芽の揺れを独立
 - 小さいiPhoneでもコメント・世界・ナビが重ならない縦レイアウトへ改善
+
+
+## v5.1.0 Message Safe Header
+- Back arrow uses an independent fixed safe zone.
+- Message Friend has a dedicated stage and reduced float range.
+- Back arrow, Friend, conversation, and composer cannot overlap.

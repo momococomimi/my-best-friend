@@ -90,3 +90,13 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Back arrow uses an independent fixed safe zone.
 - Message Friend has a dedicated stage and reduced float range.
 - Back arrow, Friend, conversation, and composer cannot overlap.
+
+
+## v5.2.0 — Always Available Voice
+- Home / Message / Profile / Memoryで中央マイクをその場で使用
+- Guardianではマイクを半透明にして無効化
+- 音声入力と返事をMessage履歴へ保存
+- Homeでは返事をコメント欄へ表示
+- Profile / Memoryでは画面を維持したまま返事を表示
+- 返事を音声読み上げ
+- マイクは他アイコンと同じ高さに揃えつつ、オレンジの円形で強調

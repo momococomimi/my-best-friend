@@ -5210,3 +5210,58 @@ body[data-screen="talk-wrap"] .app-shell {
 @media (prefers-reduced-motion: reduce) {
   .message-friend { animation: none !important; transform: none !important; }
 }
+
+
+/* v5.2.0 — one microphone, available wherever the Friend is present */
+.quiet-voice-item {
+  width: 58px !important;
+  height: 58px !important;
+  margin-top: 0 !important;
+  align-self: center !important;
+  border-width: 4px !important;
+  box-shadow: 0 8px 20px rgba(222,126,34,.34), 0 0 0 4px rgba(255,164,68,.11), 0 2px 0 rgba(255,255,255,.72) inset !important;
+}
+.quiet-voice-item .quiet-dock-symbol { width: 29px !important; height: 29px !important; }
+.quiet-voice-item .quiet-dock-svg { width: 28px !important; height: 28px !important; }
+.quiet-voice-item.is-disabled,
+.quiet-voice-item:disabled {
+  opacity: .32 !important;
+  filter: grayscale(.35) !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  animation: none !important;
+}
+.voice-response-toast {
+  position: fixed;
+  z-index: 150;
+  left: 50%;
+  bottom: calc(var(--dock-bottom, 12px) + var(--dock-height, 74px) + 14px + env(safe-area-inset-bottom));
+  width: min(calc(100vw - 36px), 520px);
+  padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 22px;
+  background: rgba(255,255,255,.88);
+  color: #2a4c59;
+  box-shadow: 0 14px 34px rgba(45,83,98,.17);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  font-size: clamp(15px, 4vw, 19px);
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 12px) scale(.98);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.voice-response-toast.is-visible { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.voice-response-toast.is-listening { border-color: rgba(72,195,149,.42); }
+.message-friend.is-listening,
+.home-appearance.is-listening { filter: brightness(1.04) saturate(1.05); }
+.chat-row.voice-status span { opacity: .78; font-style: italic; }
+@media (max-height: 760px) {
+  .quiet-voice-item { width: 54px !important; height: 54px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-response-toast { transition: none; }
+}

@@ -1066,11 +1066,15 @@ window.MBFNav = (() => {
     return `<svg class="quiet-dock-svg" ${common}>${paths[id] || ''}</svg>`;
   }
   function markup(active = '') {
-    const item = (id, label) => `
-      <button class="quiet-dock-item ${active === id ? 'is-current' : ''} ${id === 'voice' ? 'quiet-voice-item' : ''}" data-quiet-nav="${id}" type="button" ${active === id ? 'aria-current="page"' : ''} aria-label="${label}">
+    const voiceDisabled = active === 'guardian';
+    const item = (id, label) => {
+      const disabled = id === 'voice' && voiceDisabled;
+      return `
+      <button class="quiet-dock-item ${active === id ? 'is-current' : ''} ${id === 'voice' ? 'quiet-voice-item' : ''} ${disabled ? 'is-disabled' : ''}" data-quiet-nav="${id}" type="button" ${active === id ? 'aria-current="page"' : ''} ${disabled ? 'disabled aria-disabled="true"' : ''} aria-label="${disabled ? 'Guardianではマイクを使用できません' : label}">
         <span class="quiet-dock-symbol">${icon(id)}</span>
         <span class="quiet-dock-label">${label}</span>
       </button>`;
+    };
     return `<nav class="quiet-bottom-dock" aria-label="メインナビゲーション">
       ${item('profile', 'Profile')}
       ${item('message', 'Message')}
@@ -1097,9 +1101,8 @@ window.MBFNav = (() => {
         if (target === 'message') MBFMessage.render(latest);
         if (target === 'profile') MBFProfile.renderBook(latest);
         if (target === 'voice') {
-          const onHome = Boolean(document.querySelector('.home-scene'));
-          if (!onHome) MBFHome.render(latest);
-          window.setTimeout(() => MBFVoice.toggleFromHome(), onHome ? 0 : 80);
+          if (button.disabled || button.getAttribute('aria-disabled') === 'true') return;
+          MBFVoice.toggle();
         }
         if (target === 'memory') MBFMemory.render(latest);
         if (target === 'guardian') MBFGuardian.open(latest);
@@ -1206,8 +1209,12 @@ window.MBFHome = (() => {
 window.MBFVoice = (() => {
   let recognition = null;
   let listening = false;
+  let toastTimer = null;
 
   function button() { return document.querySelector('[data-quiet-nav="voice"]'); }
+  function currentScreen() { return document.body.dataset.screen || ''; }
+  function isGuardian() { return currentScreen() === 'guardian-wrap'; }
+
   function setButtonState(active) {
     listening = active;
     const btn = button();
@@ -1216,42 +1223,91 @@ window.MBFVoice = (() => {
     btn.setAttribute('aria-pressed', String(active));
     btn.setAttribute('aria-label', active ? '聞き取りを止める' : 'マイクで話す');
   }
-  function sayOnHome(text) {
-    const el = document.getElementById('homeComment');
-    if (!el) return;
-    el.classList.remove('comment-fade');
-    void el.offsetWidth;
-    el.textContent = text;
-    el.classList.add('comment-fade');
+
+  function showToast(text, state = '') {
+    let toast = document.getElementById('voiceResponseToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'voiceResponseToast';
+      toast.className = 'voice-response-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.className = `voice-response-toast is-visible ${state}`.trim();
+    toast.textContent = text;
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove('is-visible');
+      window.setTimeout(() => { if (!toast.classList.contains('is-visible')) toast.remove(); }, 260);
+    }, state === 'is-listening' ? 7000 : 4200);
   }
+
+  function showOnCurrentScreen(text, state = '') {
+    if (currentScreen() === 'home-scene') {
+      const el = document.getElementById('homeComment');
+      if (el) {
+        el.classList.remove('comment-fade');
+        void el.offsetWidth;
+        el.textContent = text;
+        el.classList.add('comment-fade');
+        return;
+      }
+    }
+    if (currentScreen() === 'talk-wrap' && window.MBFMessage?.showVoiceStatus) {
+      window.MBFMessage.showVoiceStatus(text, state);
+      return;
+    }
+    showToast(text, state);
+  }
+
   function saveVoiceExchange(transcript, reply) {
     const data = MBFStorage.load();
     data.conversations ||= [];
     data.conversations.push({ user: transcript, friend: reply, source: 'voice', createdAt: new Date().toISOString() });
-    data.conversations = data.conversations.slice(-40);
+    data.conversations = data.conversations.slice(-80);
     MBFStorage.save(data);
   }
+
   function friendlyReply(text) {
     const trimmed = String(text || '').trim();
     if (!trimmed) return 'うまく聞き取れなかったよ。もう一度、ゆっくり聞かせてね。';
     if (/おはよう/.test(trimmed)) return 'おはよう。今日も会えてうれしいよ。';
     if (/ただいま/.test(trimmed)) return 'おかえり。待っていたよ。';
     if (/おやすみ/.test(trimmed)) return 'おやすみ。ゆっくり休もうね。';
+    if (/疲れた|つかれた/.test(trimmed)) return '今日はたくさん頑張ったんだね。少しゆっくりしよう。';
     return `「${trimmed.length > 22 ? trimmed.slice(0, 22) + '…' : trimmed}」って聞こえたよ。聞かせてくれて、ありがとう。`;
   }
+
+  function speak(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.94;
+      utterance.pitch = 1.08;
+      utterance.volume = 0.9;
+      window.speechSynthesis.speak(utterance);
+    } catch (_) {}
+  }
+
   function supportedRecognition() {
     return window.SpeechRecognition || window.webkitSpeechRecognition || null;
   }
+
   function stop() {
     if (recognition && listening) {
       try { recognition.stop(); } catch (_) {}
     }
     setButtonState(false);
   }
+
   function start() {
+    if (isGuardian()) return;
     const Recognition = supportedRecognition();
     if (!Recognition) {
-      sayOnHome('このブラウザでは、まだマイクの聞き取りを使えないみたい。');
+      showOnCurrentScreen('このブラウザでは、まだマイクの聞き取りを使えないみたい。');
       setButtonState(false);
       return;
     }
@@ -1262,7 +1318,8 @@ window.MBFVoice = (() => {
     recognition.maxAlternatives = 1;
     recognition.onstart = () => {
       setButtonState(true);
-      sayOnHome('うん。聞いているよ。');
+      showOnCurrentScreen('うん。聞いているよ。', 'is-listening');
+      document.querySelector('.message-friend, .home-appearance')?.classList.add('is-listening');
       if ('vibrate' in navigator) navigator.vibrate(25);
     };
     recognition.onresult = event => {
@@ -1273,11 +1330,16 @@ window.MBFVoice = (() => {
         if (event.results[i].isFinal) finalText += t;
         else interim += t;
       }
-      if (interim) sayOnHome(interim);
+      if (interim) showOnCurrentScreen(interim, 'is-listening');
       if (finalText) {
         const reply = friendlyReply(finalText);
         saveVoiceExchange(finalText, reply);
-        window.setTimeout(() => sayOnHome(reply), 320);
+        if (currentScreen() === 'talk-wrap' && window.MBFMessage?.appendVoiceExchange) {
+          window.MBFMessage.appendVoiceExchange(finalText, reply);
+        } else {
+          window.setTimeout(() => showOnCurrentScreen(reply), 320);
+        }
+        window.setTimeout(() => speak(reply), 380);
       }
     };
     recognition.onerror = event => {
@@ -1286,17 +1348,24 @@ window.MBFVoice = (() => {
         : event.error === 'no-speech'
           ? '声が聞こえなかったよ。もう一度、聞かせてね。'
           : 'うまく聞き取れなかったよ。もう一度試してみよう。';
-      sayOnHome(message);
+      showOnCurrentScreen(message);
+      document.querySelector('.message-friend, .home-appearance')?.classList.remove('is-listening');
       setButtonState(false);
     };
-    recognition.onend = () => setButtonState(false);
+    recognition.onend = () => {
+      document.querySelector('.message-friend, .home-appearance')?.classList.remove('is-listening');
+      setButtonState(false);
+    };
     try { recognition.start(); } catch (_) { setButtonState(false); }
   }
-  function toggleFromHome() {
+
+  function toggle() {
+    if (isGuardian()) return;
     if (listening) stop();
     else start();
   }
-  return { toggleFromHome, stop };
+
+  return { toggle, toggleFromHome: toggle, stop };
 })();
 
 window.MBFMessage = (() => {
@@ -1355,6 +1424,27 @@ window.MBFMessage = (() => {
     log.scrollTop = log.scrollHeight;
     return row;
   }
+  function showVoiceStatus(text, state = '') {
+    const existing = document.querySelector('.chat-row.friend.voice-status');
+    if (existing) existing.remove();
+    appendBubble('friend', text, `voice-status ${state}`.trim());
+  }
+  function appendVoiceExchange(transcript, reply) {
+    document.querySelector('.chat-row.friend.voice-status')?.remove();
+    appendBubble('user', transcript, 'chat-enter voice-entry');
+    const friend = document.querySelector('.message-friend');
+    if (friend) friend.classList.add('is-thinking');
+    const thinking = appendBubble('friend', '…', 'is-thinking chat-enter');
+    window.setTimeout(() => {
+      thinking?.remove();
+      if (friend) friend.classList.remove('is-thinking');
+      appendBubble('friend', reply, 'chat-enter voice-entry');
+      if (friend) {
+        friend.classList.add('face-happy', 'reply-bounce');
+        window.setTimeout(() => friend.classList.remove('face-happy', 'reply-bounce'), 900);
+      }
+    }, 520);
+  }
   function send(data) {
     if (replying) return;
     const input = document.getElementById('messageInput');
@@ -1384,7 +1474,7 @@ window.MBFMessage = (() => {
       input.focus({ preventScroll: true });
     }, 650);
   }
-  return { render };
+  return { render, showVoiceStatus, appendVoiceExchange };
 })();
 
 window.MBFProfile = (() => {

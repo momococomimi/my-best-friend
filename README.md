@@ -1,4 +1,4 @@
-# My Best Friend v3.8.0
+# My Best Friend v5.3.0
 
 ## Friend Design Sprint 2
 
@@ -108,9 +108,10 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Only the Friend's generated response appears on the Friend side.
 
 
-## v6.0.0 Living Friend
-- 時間帯に応じた空と光の変化
-- 自然なまばたき・視線・静かな笑顔の待機モーション
-- Relationship・訪問日数・Memory・会話から育つ Memory Tree
-- 芽 → 若芽 → 若木 → 木 → 大樹の5段階
-- あいさつや「ただいま」「大好き」への返事を自然に多様化
+## v5.3.0 Living Friend — Stability First
+- v5.2.1の安定したHTML構造と画面寸法を維持
+- フレンドの静かな浮遊・呼吸モーションを調整
+- 既存の自然なまばたき・視線モーションを継続
+- 雲・光・葉の速度と透明度を落ち着いた強さに調整
+- ホームコメントの切り替えを柔らかなフェードへ改善
+- 「視差効果を減らす」設定では追加モーションを停止

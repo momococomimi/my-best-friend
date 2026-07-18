@@ -72,3 +72,10 @@ This release intentionally keeps the v5.2.1 DOM structure unchanged. Living moti
 ## v5.5.0 center-lock note
 
 Homeの位置決めは `.home-appearance` の `left: 50%` と、全キーフレーム内の `translateX(-50%)` に一本化する。感情クラスが横方向のアンカーを上書きしないこと。
+
+
+## v5.5.1 voice feedback rule
+- Home: response replaces the Home comment.
+- Message: voice and text share the same conversation history.
+- Profile / Memory: transient compact cream Friend bubble above the dock.
+- Guardian: voice remains disabled and no bubble is created.

@@ -5534,3 +5534,47 @@ body[data-rhythm="morning"] .quiet-home-scene .home-appearance {
     transition: none !important;
   }
 }
+
+/* ==========================================================
+   v5.5.1 — Compact shared voice bubble
+   Profile / Memory voice feedback uses the same quiet cream
+   tone as the Friend's message bubble without covering content.
+   ========================================================== */
+.voice-response-toast {
+  left: 50% !important;
+  bottom: calc(var(--dock-bottom, 12px) + var(--dock-height, 74px) + 10px + env(safe-area-inset-bottom)) !important;
+  width: max-content !important;
+  max-width: min(76vw, 360px) !important;
+  min-width: 0 !important;
+  padding: 10px 14px !important;
+  border: 1px solid rgba(238, 213, 151, .58) !important;
+  border-radius: 18px 18px 18px 7px !important;
+  background: rgba(255, 249, 226, .96) !important;
+  color: #405661 !important;
+  box-shadow: 0 10px 24px rgba(45,83,98,.14) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.08) !important;
+  backdrop-filter: blur(14px) saturate(1.08) !important;
+  font-size: clamp(14px, 3.65vw, 17px) !important;
+  font-weight: 800 !important;
+  line-height: 1.42 !important;
+  text-align: left !important;
+  overflow-wrap: anywhere;
+}
+.voice-response-toast.is-listening {
+  border-color: rgba(238, 213, 151, .58) !important;
+  background: rgba(255, 249, 226, .96) !important;
+}
+
+/* Keep the Memory prologue readable as one intentional phrase. */
+.memory-prologue p {
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+@media (max-width: 390px) {
+  .voice-response-toast {
+    max-width: min(82vw, 320px) !important;
+    padding: 9px 12px !important;
+  }
+}

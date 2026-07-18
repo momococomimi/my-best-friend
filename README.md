@@ -1,4 +1,4 @@
-# My Best Friend v5.5.0
+# My Best Friend v5.5.1
 
 ## v5.5.0 Living Expressions
 
@@ -132,3 +132,12 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - 浮遊、うれしい反応、視線の動きを中央基準で再調整
 - 🌱の揺れを独立した小さな動きに調整
 - レイアウト、音声、Message、Profile、Memory、Guardianは変更なし
+
+
+## v5.5.1 Compact Voice Bubble
+- Profile / Memory の音声通知を、Messageのフレンド吹き出しと同じ淡いクリーム色へ統一
+- 通知を内容幅・最大76vwのコンパクト表示へ変更
+- 下部ナビの直上に配置し、本文を覆いにくく調整
+- 約4秒後に自然に消える既存動作を維持
+- Guardianでは従来どおりマイク無効
+- Memory冒頭の「いつか 大きくなる、キミへの贈りもの。」の改行を安定化
